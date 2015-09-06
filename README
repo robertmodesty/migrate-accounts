@@ -1,0 +1,7 @@
+Accounts Migration Utility
+
+  Occasionally you need to migrate accounts from one server to another, most common solution is shell commands composed by yourself.  This project try to gave out a generalized utility to do that.  It starts from migration between distributions of Linux, and I hope it will become able to support other unix like operation systems.
+
+  To migrate old accounts into the host just operating, mount the filesystem of old server on a mount point, then use this command:
+
+    migratin MOUNT_POINT_OF_OLD_FILESYSTEM [start=1ST_USER_ID]
