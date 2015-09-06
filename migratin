@@ -1,5 +1,17 @@
 #!/bin/bash
 
+readonly Old_Filesystem="@1"
+
+
+function analysisArgs() {
+
+  if [ ! -d $Old_Filesystem ] ; then
+    echo "$Old_Filesystem is not a directiory." 1>&2
+    exit 1
+  fi
+}
+
+
 function exit_if_no_root_permission() {
 
   if [ "$(id -u)" != "0" ]; then
@@ -8,7 +20,10 @@ function exit_if_no_root_permission() {
   fi
 }
 
+
 function main() {
+
+  analysisArgs "$@"
 
   exit_if_no_root_permission
 
