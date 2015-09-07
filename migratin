@@ -1,14 +1,26 @@
 #!/bin/bash
 
-readonly Old_Filesystem="@1"
+readonly Old_Filesystem="$1"
 
+function analysis_args() {
 
-function analysisArgs() {
-
-  if [ ! -d $Old_Filesystem ] ; then
-    echo "$Old_Filesystem is not a directiory." 1>&2
+  if [   ! -d "$Old_Filesystem" \
+      -o ! -f "$Old_Filesystem/etc/passwd" \
+      -o ! -f "$Old_Filesystem/etc/shadow" \
+      -o ! -f "$Old_Filesystem/etc/group" \
+      -o ! -f "$Old_Filesystem/etc/gshadow" ] ; then
+    echo "'$Old_Filesystem' is not a directiory." 1>&2
     exit 1
   fi
+
+  shift
+
+  while [ -n "$1" ] ; do
+    if [ "start=" == "${1:0:6}" ] ; then
+      readonly FirstAccount="${1:6}"
+    fi
+    shift
+  done
 }
 
 
@@ -23,9 +35,11 @@ function exit_if_no_root_permission() {
 
 function main() {
 
-  analysisArgs "$@"
+  analysis_args "$@"
 
   exit_if_no_root_permission
+
+  
 
 }
 
