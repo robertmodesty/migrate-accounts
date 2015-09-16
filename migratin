@@ -16,11 +16,27 @@ function analysis_args() {
   shift
 
   while [ -n "$1" ] ; do
-    if [ "start=" == "${1:0:6}" ] ; then
-      readonly FirstAccount="${1:6}"
-    fi
+    case "$1" in
+      "start="*)
+        readonly FirstAccount="${1:6}"
+        ;;
+      "gstart="*)
+        readonly FirstGroup="${1:7}"
+        ;;
+      "end="*)
+        readonly LastAccount="${1:4}"
+        ;;
+      "gend="*)
+        readonly LastGroup="${1:5}"
+        ;;
+    esac
     shift
   done
+
+  if [ -z "$FirstAccount" ] ; then readonly FirstAccount=500 ; fi
+  if [ -z "$FirstGroup" ] ; then readonly FirstGroup="$FirstAccount" ; fi
+  if [ -z "$LastAccount" ] ; then readonly LastAccount=65533 ; fi
+  if [ -z "$LastGroup" ] ; then readonly LastGroup=65533 ; fi
 }
 
 
