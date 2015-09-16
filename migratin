@@ -2,6 +2,9 @@
 
 readonly Old_Filesystem="$1"
 
+BOARD_oldAccs=""
+BOARD_oldGrps=""
+
 function analysis_args() {
 
   if [   ! -d "$Old_Filesystem" \
@@ -49,13 +52,31 @@ function exit_if_no_root_permission() {
 }
 
 
+function get_old_account_groups() {
+  local x tmp uid
+
+  exec 3< "$Old_Filesystem/etc/passwd"
+  while read -u 3 x ; do
+    tmp="${x#*:}"
+    tmp="${tmp#*:}"
+    uid="${tmp%%:*}"
+    if [   $uid -ge $FirstAccount \
+        -a $uid -le $LastAccount ] ; then
+      echo ${x%%:*}
+    fi
+  done
+  exec 3<&-
+}
+
+
+
 function main() {
 
   analysis_args "$@"
 
   exit_if_no_root_permission
 
-  
+  BOARD_oldAccs="$( get_old_account_groups )"
 
 }
 
