@@ -7,11 +7,7 @@ BOARD_oldGrps=""
 
 function analysis_args() {
 
-  if [   ! -d "$Old_Filesystem" \
-      -o ! -f "$Old_Filesystem/etc/passwd" \
-      -o ! -f "$Old_Filesystem/etc/shadow" \
-      -o ! -f "$Old_Filesystem/etc/group" \
-      -o ! -f "$Old_Filesystem/etc/gshadow" ] ; then
+  if [   ! -d "$Old_Filesystem" ] ; then
     echo "'$Old_Filesystem' is not a directiory." 1>&2
     exit 1
   fi
@@ -32,14 +28,35 @@ function analysis_args() {
       "gend="*)
         readonly LastGroup="${1:5}"
         ;;
+      "passwd="*)
+        readonly passwdFile="${1:7}"
+        ;;
+      "shadow="*)
+        readonly shadowFile="${1:7}"
+        ;;
+      "group="*)
+        readonly groupFile"${1:6}"
+        ;;
+      "gshadow="*)
+        readonly gshadowFile="${1:8}"
+        ;;
     esac
     shift
   done
 
-  if [ -z "$FirstAccount" ] ; then readonly FirstAccount=500 ; fi
-  if [ -z "$FirstGroup" ] ; then readonly FirstGroup="$FirstAccount" ; fi
-  if [ -z "$LastAccount" ] ; then readonly LastAccount=65533 ; fi
-  if [ -z "$LastGroup" ] ; then readonly LastGroup=65533 ; fi
+  if [ -z "$FirstAccount" ] ; then readonly FirstAccount=500                          ; fi
+  if [ -z "$FirstGroup"   ] ; then readonly FirstGroup="$FirstAccount"                ; fi
+  if [ -z "$LastAccount"  ] ; then readonly LastAccount=65533                         ; fi
+  if [ -z "$LastGroup"    ] ; then readonly LastGroup=65533                           ; fi
+  if [ -z "$passwdFile"   ] ; then readonly passwdFile="$Old_Filesystem/etc/passwd"   ; fi
+  if [ -z "$shadowFile"   ] ; then readonly shadowFile="$Old_Filesystem/etc/shadow"   ; fi
+  if [ -z "$groupFile"    ] ; then readonly groupFile="$Old_Filesystem/etc/group"     ; fi
+  if [ -z "$gshadowFile"  ] ; then readonly gshadowFile="$Old_Filesystem/etc/gshadow" ; fi
+
+  if [ ! -f "$passwdFile"  ] ; then echo "'$passwdFile' is not a file."  ; exit 1 ; fi
+  if [ ! -f "$shadowFile"  ] ; then echo "'$shadowFile' is not a file."  ; exit 1 ; fi
+  if [ ! -f "$groupFile"   ] ; then echo "'$groupFile' is not a file."   ; exit 1 ; fi
+  if [ ! -f "$gshadowFile" ] ; then echo "'$gshadowFile' is not a file." ; exit 1 ; fi
 }
 
 
@@ -55,7 +72,7 @@ function exit_if_no_root_permission() {
 function get_old_account_groups() {
   local x tmp uid
 
-  exec 3< "$Old_Filesystem/etc/passwd"
+  exec 3< "$passwdFile"
   while read -u 3 x ; do
     tmp="${x#*:}"
     tmp="${tmp#*:}"
