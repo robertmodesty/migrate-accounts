@@ -35,7 +35,7 @@ function analysis_args() {
         readonly shadowFile="${1:7}"
         ;;
       "group="*)
-        readonly groupFile"${1:6}"
+        readonly groupFile="${1:6}"
         ;;
       "gshadow="*)
         readonly gshadowFile="${1:8}"
