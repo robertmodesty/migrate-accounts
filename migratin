@@ -86,6 +86,33 @@ function get_old_account_groups() {
 }
 
 
+function is_initial_group() {
+
+  echo "$BOARD_oldAccs" \
+   | grep $1 > /dev/null
+  return $?
+}
+
+
+function get_old_grops_different_from_accounts() {
+  local x gid
+
+  exec 3< "$groupFile"
+  while read -u 3 x ; do
+    gid="${x#*:}"
+    gid="${gid#*:}"
+    gid="${gid%%:*}"
+    x="${x%%:*}"
+    if ! is_initial_group "$x" \
+      && [   $gid -ge $FirstGroup \
+          -a $gid -le $LastGroup ] ; then
+      echo "$x"
+    fi
+  done
+  exec 3<&-
+}
+
+
 function main() {
 
   analysis_args "$@"
@@ -93,6 +120,8 @@ function main() {
   exit_if_no_root_permission
 
   BOARD_oldAccs="$( get_old_account_groups )"
+
+  BOARD_oldGrps="$( get_old_grops_different_from_accounts )"
 
 }
 
