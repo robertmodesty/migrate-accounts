@@ -70,13 +70,13 @@ function exit_if_no_root_permission() {
 
 
 function get_old_account_groups() {
-  local x tmp uid
+  local x uid
 
   exec 3< "$passwdFile"
   while read -u 3 x ; do
-    tmp="${x#*:}"
-    tmp="${tmp#*:}"
-    uid="${tmp%%:*}"
+    uid="${x#*:}"
+    uid="${uid#*:}"
+    uid="${uid%%:*}"
     if [   $uid -ge $FirstAccount \
         -a $uid -le $LastAccount ] ; then
       echo ${x%%:*}
@@ -84,7 +84,6 @@ function get_old_account_groups() {
   done
   exec 3<&-
 }
-
 
 
 function main() {
