@@ -1,6 +1,8 @@
 #!/bin/bash
 
 readonly Old_Filesystem="$1"
+readonly ValidUsers="$( cat /etc/passwd | sed s/:.*// )"
+readonly ValidGroups="$( cat /etc/group | sed s/:.*// )"
 
 BOARD_oldAccs=""
 BOARD_oldGrps=""
@@ -89,6 +91,20 @@ function get_old_account_groups() {
 function is_initial_group() {
 
   echo "$BOARD_oldAccs" \
+   | grep $1 > /dev/null
+  return $?
+}
+
+function is_valid_user() {
+
+  echo "$ValidUsers" \
+   | grep $1 > /dev/null
+  return $?
+}
+
+function is_valid_group() {
+
+  echo "$ValidGroups" \
    | grep $1 > /dev/null
   return $?
 }
