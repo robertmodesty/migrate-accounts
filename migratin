@@ -16,29 +16,29 @@ function analysis_args() {
 
   while [ -n "$1" ] ; do
     case "$1" in
-      "start="*)
-        readonly FirstAccount="${1:6}"
+      "--start="*)
+        readonly FirstAccount="${1:8}"
         ;;
-      "gstart="*)
-        readonly FirstGroup="${1:7}"
+      "--gstart="*)
+        readonly FirstGroup="${1:9}"
         ;;
-      "end="*)
-        readonly LastAccount="${1:4}"
+      "--end="*)
+        readonly LastAccount="${1:6}"
         ;;
-      "gend="*)
-        readonly LastGroup="${1:5}"
+      "--gend="*)
+        readonly LastGroup="${1:7}"
         ;;
-      "passwd="*)
-        readonly passwdFile="${1:7}"
+      "--passwd="*)
+        readonly old_passwd="${1:9}"
         ;;
-      "shadow="*)
-        readonly shadowFile="${1:7}"
+      "--shadow="*)
+        readonly old_shadow="${1:9}"
         ;;
-      "group="*)
-        readonly groupFile="${1:6}"
+      "--group="*)
+        readonly old_group="${1:8}"
         ;;
-      "gshadow="*)
-        readonly gshadowFile="${1:8}"
+      "--gshadow="*)
+        readonly old_gshadow="${1:10}"
         ;;
     esac
     shift
@@ -48,15 +48,15 @@ function analysis_args() {
   if [ -z "$FirstGroup"   ] ; then readonly FirstGroup="$FirstAccount"                ; fi
   if [ -z "$LastAccount"  ] ; then readonly LastAccount=65533                         ; fi
   if [ -z "$LastGroup"    ] ; then readonly LastGroup=65533                           ; fi
-  if [ -z "$passwdFile"   ] ; then readonly passwdFile="$Old_Filesystem/etc/passwd"   ; fi
-  if [ -z "$shadowFile"   ] ; then readonly shadowFile="$Old_Filesystem/etc/shadow"   ; fi
-  if [ -z "$groupFile"    ] ; then readonly groupFile="$Old_Filesystem/etc/group"     ; fi
-  if [ -z "$gshadowFile"  ] ; then readonly gshadowFile="$Old_Filesystem/etc/gshadow" ; fi
+  if [ -z "$old_passwd"   ] ; then readonly old_passwd="$Old_Filesystem/etc/passwd"   ; fi
+  if [ -z "$old_shadow"   ] ; then readonly old_shadow="$Old_Filesystem/etc/shadow"   ; fi
+  if [ -z "$old_group"    ] ; then readonly old_group="$Old_Filesystem/etc/group"     ; fi
+  if [ -z "$old_gshadow"  ] ; then readonly old_gshadow="$Old_Filesystem/etc/gshadow" ; fi
 
-  if [ ! -f "$passwdFile"  ] ; then echo "'$passwdFile' is not a file."  ; exit 1 ; fi
-  if [ ! -f "$shadowFile"  ] ; then echo "'$shadowFile' is not a file."  ; exit 1 ; fi
-  if [ ! -f "$groupFile"   ] ; then echo "'$groupFile' is not a file."   ; exit 1 ; fi
-  if [ ! -f "$gshadowFile" ] ; then echo "'$gshadowFile' is not a file." ; exit 1 ; fi
+  if [ ! -f "$old_passwd"  ] ; then echo "'$old_passwd' is not a file."  ; exit 1 ; fi
+  if [ ! -f "$old_shadow"  ] ; then echo "'$old_shadow' is not a file."  ; exit 1 ; fi
+  if [ ! -f "$old_group"   ] ; then echo "'$old_group' is not a file."   ; exit 1 ; fi
+  if [ ! -f "$old_gshadow" ] ; then echo "'$old_gshadow' is not a file." ; exit 1 ; fi
 }
 
 
@@ -72,7 +72,7 @@ function exit_if_no_root_permission() {
 function get_old_account_groups() {
   local x uid
 
-  exec 3< "$passwdFile"
+  exec 3< "$old_passwd"
   while read -u 3 x ; do
     uid="${x#*:}"
     uid="${uid#*:}"
@@ -97,7 +97,7 @@ function is_initial_group() {
 function get_old_grops_different_from_accounts() {
   local x gid
 
-  exec 3< "$groupFile"
+  exec 3< "$old_group"
   while read -u 3 x ; do
     gid="${x#*:}"
     gid="${gid#*:}"
