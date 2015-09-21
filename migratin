@@ -129,6 +129,45 @@ function get_old_grops_different_from_accounts() {
 }
 
 
+function check_account_group_names() {
+  local Vaccs Vgrps x
+
+  Vaccs="$(
+    echo "$BOARD_oldAccs" \
+     | while read x ; do
+      if is_valid_user $x ; then echo "$x " ; fi
+    done
+  )"
+
+  Vgrps="$(
+    (echo "$BOARD_oldAccs" ; echo "$BOARD_oldGrps") \
+     | while read x ; do
+      if is_valid_group $x ; then echo "$x " ; fi
+    done
+  )"
+
+  if [ -n "$Vaccs" ] ; then
+    echo These users had been already added:
+    echo
+    echo $Vaccs
+    echo
+  fi
+
+  if [ -n "$Vgrps" ] ; then
+    echo These groups had been already builded:
+    echo
+    echo $Vgrps
+    echo
+    echo Please correct it before migration.
+    exit 1
+
+  elif [ -n "$Vaccs" ] ; then
+    echo Please correct it before migration.
+    exit 1
+  fi
+}
+
+
 function main() {
 
   analysis_args "$@"
@@ -138,6 +177,8 @@ function main() {
   BOARD_oldAccs="$( get_old_account_groups )"
 
   BOARD_oldGrps="$( get_old_grops_different_from_accounts )"
+
+  check_account_group_names
 
 }
 
