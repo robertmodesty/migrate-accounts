@@ -88,7 +88,7 @@ function get_old_account_groups() {
 }
 
 
-function is_initial_group() {
+function is_old_initial_group() {
 
   echo "$BOARD_oldAccs" \
    | grep $1 > /dev/null
@@ -119,7 +119,7 @@ function get_old_grops_different_from_accounts() {
     gid="${gid#*:}"
     gid="${gid%%:*}"
     x="${x%%:*}"
-    if ! is_initial_group "$x" \
+    if ! is_old_initial_group "$x" \
       && [   $gid -ge $FirstGroup \
           -a $gid -le $LastGroup ] ; then
       echo "$x"
