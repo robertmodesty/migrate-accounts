@@ -188,6 +188,27 @@ function check_if_home_directorys_exist() {
 }
 
 
+function cut_field() {
+  local -i step field=$1
+  local x
+
+  read x
+
+  for (( step=1 ; step<field ; step++ )) ; do
+    x=${x#*:}
+  done
+
+  echo "${x%%:*}"
+}
+
+
+function get_user_comment() {
+
+  grep "^$1" "$old_passwd" \
+    | cut_field 5
+}
+
+
 function main() {
 
   analysis_args "$@"
