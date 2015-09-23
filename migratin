@@ -168,6 +168,26 @@ function check_account_group_names() {
 }
 
 
+function check_if_home_directorys_exist() {
+  local homeDirectorys
+
+  homeDirectorys="$(
+    echo "$BOARD_oldAccs" \
+     | while read x ; do
+      if [ -e "/home/$x" ] ; then echo "$x " ; fi
+    done
+  )"
+
+  if [ -n "$homeDirectorys" ] ; then
+    echo These home directory is already exist:
+    echo
+    echo "$homeDirectorys"
+    echo
+    echo Please correct it.
+  fi
+}
+
+
 function main() {
 
   analysis_args "$@"
@@ -179,6 +199,8 @@ function main() {
   BOARD_oldGrps="$( get_old_grops_different_from_accounts )"
 
   check_account_group_names
+
+  check_if_home_directorys_exist
 
 }
 
