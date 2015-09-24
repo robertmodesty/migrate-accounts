@@ -209,6 +209,25 @@ function get_user_comment() {
 }
 
 
+function get_user_initial_group() {
+  local groupID="$(
+
+    grep "^$1" "$old_passwd" \
+      | cut_field 4
+  )"
+
+  grep "^[^:]*:[^:]*$groupID" "$old_group" \
+    | cut_field 3
+}
+
+
+function get_user_unshadow_password() {
+
+  grep "^$1" "$old_passwd" \
+    | cut_field 2
+}
+
+
 function main() {
 
   analysis_args "$@"
