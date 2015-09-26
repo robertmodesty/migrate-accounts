@@ -216,8 +216,8 @@ function get_user_initial_group() {
       | cut_field 4
   )"
 
-  grep "^[^:]*:[^:]*$groupID" "$old_group" \
-    | cut_field 3
+  grep "^[^:]*:[^:]*:$groupID" "$old_group" \
+    | cut_field 1
 }
 
 
