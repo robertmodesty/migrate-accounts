@@ -228,6 +228,28 @@ function get_user_unshadow_password() {
 }
 
 
+function buile_accounts() {
+  local comment initGrp password shadowData
+
+  echo "$BOARD_oldAccs" \
+   | while read x ; do
+
+    comment="$( get_user_comment $x )"
+    initGrp="$( get_user_initial_group $x )"
+    useradd -m -p 00000000 -c "$comment" -g initGrp $x
+
+    password="$( get_user_unshadow_password $x )"
+    sed -i "s/^$x:[^:]*/$x:$password/" /etc/passwd
+
+    shadowData="$( grep "^$x:" "$old_shadow" )"
+    if [ -n "$shadowData" ] ; then
+      sed -i "s/^$x:.*/$shadowData/" /etc/shadow
+    fi
+
+  done
+}
+
+
 function main() {
 
   analysis_args "$@"
