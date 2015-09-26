@@ -71,6 +71,28 @@ function exit_if_no_root_permission() {
 }
 
 
+function cut_field() {
+  local -i step field=$1
+  local x
+
+  if [ -n "$2" ] ; then
+    x="$2"
+    for (( step=1 ; step<field ; step++ )) ; do
+      x=${x#*:}
+    done
+    echo "${x%%:*}"
+
+  else
+    while read x ; do
+      for (( step=1 ; step<field ; step++ )) ; do
+        x=${x#*:}
+      done
+      echo "${x%%:*}"
+    done
+  fi
+}
+
+
 function get_old_account_groups() {
   local x uid
 
@@ -185,20 +207,6 @@ function check_if_home_directorys_exist() {
     echo
     echo Please correct it.
   fi
-}
-
-
-function cut_field() {
-  local -i step field=$1
-  local x
-
-  read x
-
-  for (( step=1 ; step<field ; step++ )) ; do
-    x=${x#*:}
-  done
-
-  echo "${x%%:*}"
 }
 
 
