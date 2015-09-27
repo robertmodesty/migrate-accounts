@@ -93,7 +93,7 @@ function cut_field() {
 }
 
 
-function get_old_account_groups() {
+function get_old_accounts() {
   local x userID
 
   exec 3< "$old_passwd"
@@ -130,7 +130,7 @@ function is_valid_group() {
 }
 
 
-function get_old_grops_different_from_accounts() {
+function get_other_old_groups() {
   local x groupID
 
   exec 3< "$old_group"
@@ -260,9 +260,9 @@ function main() {
 
   exit_if_no_root_permission
 
-  BOARD_oldAccs="$( get_old_account_groups )"
+  BOARD_oldAccs="$( get_old_accounts )"
 
-  BOARD_oldGrps="$( get_old_grops_different_from_accounts )"
+  BOARD_oldGrps="$( get_other_old_groups )"
 
   check_account_group_names
 
