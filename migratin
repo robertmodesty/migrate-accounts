@@ -98,9 +98,7 @@ function get_old_account_groups() {
 
   exec 3< "$old_passwd"
   while read -u 3 x ; do
-    uid="${x#*:}"
-    uid="${uid#*:}"
-    uid="${uid%%:*}"
+    uid="$( cup_field 3 "$x" )"
     if [   $uid -ge $FirstAccount \
         -a $uid -le $LastAccount ] ; then
       echo ${x%%:*}
@@ -137,9 +135,7 @@ function get_old_grops_different_from_accounts() {
 
   exec 3< "$old_group"
   while read -u 3 x ; do
-    gid="${x#*:}"
-    gid="${gid#*:}"
-    gid="${gid%%:*}"
+    gid="$( cup_field 3 "$x" )"
     x="${x%%:*}"
     if ! is_old_initial_group "$x" \
       && [   $gid -ge $FirstGroup \
