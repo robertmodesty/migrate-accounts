@@ -94,13 +94,13 @@ function cut_field() {
 
 
 function get_old_account_groups() {
-  local x uid
+  local x userID
 
   exec 3< "$old_passwd"
   while read -u 3 x ; do
-    uid="$( cup_field 3 "$x" )"
-    if [   $uid -ge $FirstAccount \
-        -a $uid -le $LastAccount ] ; then
+    userID="$( cup_field 3 "$x" )"
+    if [   $userID -ge $FirstAccount \
+        -a $userID -le $LastAccount ] ; then
       echo ${x%%:*}
     fi
   done
@@ -131,15 +131,15 @@ function is_valid_group() {
 
 
 function get_old_grops_different_from_accounts() {
-  local x gid
+  local x groupID
 
   exec 3< "$old_group"
   while read -u 3 x ; do
-    gid="$( cup_field 3 "$x" )"
+    groupID="$( cup_field 3 "$x" )"
     x="${x%%:*}"
     if ! is_old_initial_group "$x" \
-      && [   $gid -ge $FirstGroup \
-          -a $gid -le $LastGroup ] ; then
+      && [   $groupID -ge $FirstGroup \
+          -a $groupID -le $LastGroup ] ; then
       echo "$x"
     fi
   done
