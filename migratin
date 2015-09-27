@@ -111,21 +111,21 @@ function get_old_account_groups() {
 function is_old_initial_group() {
 
   echo "$BOARD_oldAccs" \
-   | grep $1 > /dev/null
+   | grep "^$1$" > /dev/null
   return $?
 }
 
 function is_valid_user() {
 
   echo "$ValidUsers" \
-   | grep $1 > /dev/null
+   | grep "^$1$" > /dev/null
   return $?
 }
 
 function is_valid_group() {
 
   echo "$ValidGroups" \
-   | grep $1 > /dev/null
+   | grep "^$1$" > /dev/null
   return $?
 }
 
@@ -208,7 +208,7 @@ function check_if_home_directorys_exist() {
 
 function get_user_comment() {
 
-  grep "^$1" "$old_passwd" \
+  grep "^$1:" "$old_passwd" \
     | cut_field 5
 }
 
@@ -216,18 +216,18 @@ function get_user_comment() {
 function get_user_initial_group() {
   local groupID="$(
 
-    grep "^$1" "$old_passwd" \
+    grep "^$1:" "$old_passwd" \
       | cut_field 4
   )"
 
-  grep "^[^:]*:[^:]*:$groupID" "$old_group" \
+  grep "^[^:]*:[^:]*:$groupID:" "$old_group" \
     | cut_field 1
 }
 
 
 function get_user_unshadow_password() {
 
-  grep "^$1" "$old_passwd" \
+  grep "^$1:" "$old_passwd" \
     | cut_field 2
 }
 
