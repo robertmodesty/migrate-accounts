@@ -5,6 +5,7 @@ readonly ValidUsers="$( cat /etc/passwd | sed s/:.*// )"
 readonly ValidGroups="$( cat /etc/group | sed s/:.*// )"
 
 BOARD_oldAccs=""
+BOARD_oldInitGrps=""
 BOARD_oldGrps=""
 
 function analysis_args() {
@@ -105,6 +106,29 @@ function get_old_accounts() {
     fi
   done
   exec 3<&-
+}
+
+
+function get_old_initial_groups() {
+  local x accData groupIDs
+
+  exec 3< "$old_passwd"
+  groupIDs="$(
+    echo "$BOARD_oldAccs" | while read x ; do
+      while [ "${accData%%:*}" != "$x" ] ; do
+        read -u 3 accData
+      done
+      cut_field 4 "$accData"
+    done
+  )"
+  exec 3<&-
+
+  echo "$groupIDs" | while read x ; do
+    grep "^[^:]*:[^:]*:$x:" "$old_group" \
+     | cut_field 1
+  done \
+   | sort \
+   | uniq
 }
 
 
@@ -261,6 +285,8 @@ function main() {
   exit_if_no_root_permission
 
   BOARD_oldAccs="$( get_old_accounts )"
+
+  BOARD_oldInitGrps="$( get_old_initial_groups )"
 
   BOARD_oldGrps="$( get_other_old_groups )"
 
