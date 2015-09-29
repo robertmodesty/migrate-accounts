@@ -6,6 +6,7 @@ readonly ValidGroups="$( cat /etc/group | sed s/:.*// )"
 
 BOARD_oldAccs=""
 BOARD_oldInitGrps=""
+BOARD_unvalidInitGrps=""
 BOARD_oldGrps=""
 
 function analysis_args() {
@@ -154,6 +155,16 @@ function is_valid_group() {
 }
 
 
+function get_unvalid_initial_groups(){
+  local x
+
+  echo "$BOARD_oldInitGrps" \
+   | while read x ; do
+    if ! is_valid_group $x ; then echo "$x" ; fi
+  done
+}
+
+
 function get_other_old_groups() {
   local x groupID
 
@@ -287,6 +298,8 @@ function main() {
   BOARD_oldAccs="$( get_old_accounts )"
 
   BOARD_oldInitGrps="$( get_old_initial_groups )"
+
+  BOARD_unvalidInitGrps="$( get_unvalid_initial_groups )"
 
   BOARD_oldGrps="$( get_other_old_groups )"
 
