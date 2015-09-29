@@ -4,6 +4,7 @@ readonly Old_Filesystem="$1"
 readonly ValidUsers="$( cat /etc/passwd | sed s/:.*// )"
 readonly ValidGroups="$( cat /etc/group | sed s/:.*// )"
 
+BOARD_oldAccGrpPairs=""
 BOARD_oldAccs=""
 BOARD_oldInitGrps=""
 BOARD_unvalidInitGrps=""
@@ -92,6 +93,23 @@ function cut_field() {
       echo "${x%%:*}"
     done
   fi
+}
+
+
+function get_old_accounts_with_initial_group() {
+  local x y userID groupID
+
+  exec 3< "$old_passwd"
+  while read -u 3 x ; do
+    userID="$( cup_field 3 "$x" )"
+    if [   $userID -ge $FirstAccount \
+        -a $userID -le $LastAccount ] ; then
+      groupID="$( cut_field 4 "$x" )"
+      echo -n "${x%%:*}:"
+      grep "^[^:]*:[^:]*:$groupID:" "$old_group"
+    fi
+  done
+  exec 3<&-
 }
 
 
@@ -294,6 +312,8 @@ function main() {
   analysis_args "$@"
 
   exit_if_no_root_permission
+
+  BOARD_oldAccGrpPairs="$( get_old_accounts_with_initial_group )"
 
   BOARD_oldAccs="$( get_old_accounts )"
 
