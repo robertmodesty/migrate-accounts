@@ -179,19 +179,26 @@ function get_other_old_groups() {
 
 
 function check_account_group_names() {
-  local Vaccs Vgrps x
+  local Vaccs Vgrps x notClean
 
   Vaccs="$(
     echo "$BOARD_oldAccs" \
      | while read x ; do
-      if is_valid_user $x ; then echo "$x " ; fi
+      if is_valid_user $x ; then echo "$x" ; fi
+    done
+  )"
+
+  VInitGrps="$(
+    echo "$BOARD_oldInitGrps" \
+     | while read x ; do
+      if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
 
   Vgrps="$(
-    (echo "$BOARD_oldAccs" ; echo "$BOARD_oldGrps") \
+    echo "$BOARD_oldGrps" \
      | while read x ; do
-      if is_valid_group $x ; then echo "$x " ; fi
+      if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
 
@@ -200,6 +207,7 @@ function check_account_group_names() {
     echo
     echo $Vaccs
     echo
+    notClean="1"
   fi
 
   if [ -n "$Vgrps" ] ; then
@@ -208,12 +216,29 @@ function check_account_group_names() {
     echo $Vgrps
     echo
     echo Please correct it before migration.
-    exit 1
-
-  elif [ -n "$Vaccs" ] ; then
-    echo Please correct it before migration.
-    exit 1
+    notClean="1"
   fi
+
+  if [ -n "$VinitGrps" ] ; then
+    echo These initial groups had been already builded:
+    echo
+    echo $VinitGrps
+    echo
+
+    if [ "1" != "$notClean" ] ; then
+      read -p "Will this be fine? (Y/n) " x
+      x="${x^^}"
+
+      while [ "Y" == "${x:=Y}" -o "N" == "$x" ] ; do
+        read -p "Please insert 'Y' or 'N': " x
+        x="${x^^}"
+      done
+
+      test "N" == "$x" && notClean="1"
+    fi
+  fi
+
+  test "1" == "$notClean" && exit 1
 }
 
 
