@@ -248,7 +248,7 @@ function check_if_home_directorys_exist() {
   homeDirectorys="$(
     echo "$BOARD_oldAccs" \
      | while read x ; do
-      if [ -e "/home/$x" ] ; then echo "$x " ; fi
+      if [ -e "/home/$x" ] ; then echo "$x" ; fi
     done
   )"
 
@@ -258,6 +258,7 @@ function check_if_home_directorys_exist() {
     echo "$homeDirectorys"
     echo
     echo Please correct it.
+    exit 1
   fi
 }
 
