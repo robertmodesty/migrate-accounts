@@ -49,19 +49,19 @@ function analysis_args() {
     shift
   done
 
-  if [ -z "$FirstAccount" ] ; then readonly FirstAccount=500                          ; fi
-  if [ -z "$FirstGroup"   ] ; then readonly FirstGroup="$FirstAccount"                ; fi
-  if [ -z "$LastAccount"  ] ; then readonly LastAccount=65533                         ; fi
-  if [ -z "$LastGroup"    ] ; then readonly LastGroup=65533                           ; fi
-  if [ -z "$old_passwd"   ] ; then readonly old_passwd="$Old_Filesystem/etc/passwd"   ; fi
-  if [ -z "$old_shadow"   ] ; then readonly old_shadow="$Old_Filesystem/etc/shadow"   ; fi
-  if [ -z "$old_group"    ] ; then readonly old_group="$Old_Filesystem/etc/group"     ; fi
-  if [ -z "$old_gshadow"  ] ; then readonly old_gshadow="$Old_Filesystem/etc/gshadow" ; fi
+  test -z "$FirstAccount" && readonly FirstAccount=500
+  test -z "$FirstGroup"   && readonly FirstGroup="$FirstAccount"
+  test -z "$LastAccount"  && readonly LastAccount=65533
+  test -z "$LastGroup"    && readonly LastGroup=65533
+  test -z "$old_passwd"   && readonly old_passwd="$Old_Filesystem/etc/passwd"
+  test -z "$old_shadow"   && readonly old_shadow="$Old_Filesystem/etc/shadow"
+  test -z "$old_group"    && readonly old_group="$Old_Filesystem/etc/group"
+  test -z "$old_gshadow"  && readonly old_gshadow="$Old_Filesystem/etc/gshadow"
 
-  if [ ! -f "$old_passwd"  ] ; then echo "'$old_passwd' is not a file."  ; exit 1 ; fi
-  if [ ! -f "$old_shadow"  ] ; then echo "'$old_shadow' is not a file."  ; exit 1 ; fi
-  if [ ! -f "$old_group"   ] ; then echo "'$old_group' is not a file."   ; exit 1 ; fi
-  if [ ! -f "$old_gshadow" ] ; then echo "'$old_gshadow' is not a file." ; exit 1 ; fi
+  test ! -f "$old_passwd"  && echo "'$old_passwd' is not a file."  && exit 1
+  test ! -f "$old_shadow"  && echo "'$old_shadow' is not a file."  && exit 1
+  test ! -f "$old_group"   && echo "'$old_group' is not a file."   && exit 1
+  test ! -f "$old_gshadow" && echo "'$old_gshadow' is not a file." && exit 1
 }
 
 
