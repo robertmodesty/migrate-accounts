@@ -178,6 +178,21 @@ function get_other_old_groups() {
 }
 
 
+function process_boarded_variables() {
+
+  BOARD_oldAccGrpPairs="$( get_old_accounts_with_initial_group )"
+
+  BOARD_oldAccs="$( get_old_accounts )"
+
+  BOARD_oldInitGrps="$( get_old_initial_groups )"
+
+  BOARD_unvalidInitGrps="$( get_unvalid_initial_groups )"
+
+  BOARD_oldGrps="$( get_other_old_groups )"
+
+}
+
+
 function check_account_group_names() {
   local Vaccs Vgrps x notClean
 
@@ -317,15 +332,7 @@ function main() {
 
   exit_if_no_root_permission
 
-  BOARD_oldAccGrpPairs="$( get_old_accounts_with_initial_group )"
-
-  BOARD_oldAccs="$( get_old_accounts )"
-
-  BOARD_oldInitGrps="$( get_old_initial_groups )"
-
-  BOARD_unvalidInitGrps="$( get_unvalid_initial_groups )"
-
-  BOARD_oldGrps="$( get_other_old_groups )"
+  process_boarded_variables
 
   check_account_group_names
 
