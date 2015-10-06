@@ -101,12 +101,13 @@ function get_old_accounts_with_initial_group() {
 
   exec 3< "$old_passwd"
   while read -u 3 x ; do
-    userID="$( cup_field 3 "$x" )"
+    userID="$( cut_field 3 "$x" )"
     if [   $userID -ge $FirstAccount \
         -a $userID -le $LastAccount ] ; then
       groupID="$( cut_field 4 "$x" )"
       echo -n "${x%%:*}:"
-      grep "^[^:]*:[^:]*:$groupID:" "$old_group"
+      grep "^[^:]*:[^:]*:$groupID:" "$old_group" \
+       | cut_field 1
     fi
   done
   exec 3<&-
