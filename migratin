@@ -124,7 +124,7 @@ function get_old_accounts() {
 function get_old_initial_groups() {
 
   echo "$BOARD_oldAccGrpPairs" \
-   | cut_field 2
+   | cut_field 2 \
    | sort \
    | uniq
 }
