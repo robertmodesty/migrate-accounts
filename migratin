@@ -131,23 +131,23 @@ function get_old_initial_groups() {
 
 
 function is_old_initial_group() {
+  local oldInitGrps=" $( echo $BOARD_oldInitGrps ) "
 
-  echo "$BOARD_oldInitGrps" \
-   | grep "^$1$" > /dev/null
+  test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
   return $?
 }
 
 function is_valid_user() {
+  local VUsers=" $( echo $ValidUsers ) "
 
-  echo "$ValidUsers" \
-   | grep "^$1$" > /dev/null
+  test "${VUsers}" != "${VUsers#* $1 }"
   return $?
 }
 
 function is_valid_group() {
+  local VGroups=" $( echo $ValidGroups ) "
 
-  echo "$ValidGroups" \
-   | grep "^$1$" > /dev/null
+  test "${VGroups}" != "${VGroups#* $1 }"
   return $?
 }
 
