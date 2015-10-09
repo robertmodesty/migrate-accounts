@@ -240,18 +240,18 @@ function check_account_group_names() {
     echo
     echo $VinitGrps
     echo
+  fi
 
-    if [ "1" != "$notClean" ] ; then
-      read -p "Will this be fine? (Y/n) " x
+  if [ -n "$VinitGrps" -a "1" != "$notClean" ] ; then
+    read -p "Will this be fine? (Y/n) " x
+    x="${x^^}"
+
+    while [ "Y" == "${x:=Y}" -o "N" == "$x" ] ; do
+      read -p "Please insert 'Y' or 'N': " x
       x="${x^^}"
+    done
 
-      while [ "Y" == "${x:=Y}" -o "N" == "$x" ] ; do
-        read -p "Please insert 'Y' or 'N': " x
-        x="${x^^}"
-      done
-
-      test "N" == "$x" && notClean="1"
-    fi
+    test "N" == "$x" && notClean="1"
   fi
 
   test "1" == "$notClean" && exit 1
