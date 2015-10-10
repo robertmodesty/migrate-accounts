@@ -279,6 +279,16 @@ function check_if_home_directorys_exist() {
 }
 
 
+function build_groups() {
+  local x
+
+  ( echo "$BOARD_unvalidInitGrps" ; echo "$BOARD_oldGrps" ) \
+   | while read x ; do
+     groupadd $x
+  done
+}
+
+
 function get_user_comment() {
 
   grep "^$1:" "$old_passwd" \
@@ -339,6 +349,9 @@ function main() {
 
   check_if_home_directorys_exist
 
+  build_groups
+
+  buile_accounts
 }
 
 main "$@"
