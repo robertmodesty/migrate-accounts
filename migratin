@@ -323,7 +323,7 @@ function buile_accounts() {
 
     comment="$( get_user_comment $x )"
     initGrp="$( get_user_initial_group $x )"
-    useradd -m -p 00000000 -c "$comment" -g initGrp $x
+    useradd -m -p 00000000 -c "$comment" -g $initGrp $x
 
     password="$( get_user_unshadow_password $x )"
     sed -i "s/^$x:[^:]*/$x:$password/" /etc/passwd
