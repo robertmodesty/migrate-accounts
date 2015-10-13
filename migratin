@@ -6,7 +6,7 @@ BOARD_oldAccGrpPairs=""
 BOARD_oldAccs=""
 BOARD_oldInitGrps=""
 BOARD_unvalidInitGrps=""
-BOARD_oldGrps=""
+BOARD_othrOldGrps=""
 
 function analysis_args() {
 
@@ -201,7 +201,7 @@ function process_boarded_variables() {
 
   BOARD_unvalidInitGrps="$( get_unvalid_initial_groups )"
 
-  BOARD_oldGrps="$( get_other_old_groups )"
+  BOARD_othrOldGrps="$( get_other_old_groups )"
 
 }
 
@@ -224,7 +224,7 @@ function check_account_group_names() {
   )"
 
   Vgrps="$(
-    echo "$BOARD_oldGrps" \
+    echo "$BOARD_othrOldGrps" \
      | while read x ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
@@ -291,16 +291,6 @@ function check_if_home_directorys_exist() {
 }
 
 
-function build_groups() {
-  local x
-
-  ( echo "$BOARD_unvalidInitGrps" ; echo "$BOARD_oldGrps" ) \
-   | while read x ; do
-     groupadd $x
-  done
-}
-
-
 function get_user_comment() {
 
   grep "^$1:" "$old_passwd" \
@@ -353,6 +343,16 @@ function buile_accounts() {
 }
 
 
+function build_other_groups() {
+  local x
+
+  echo "$BOARD_othrOldGrps" \
+   | while read x ; do
+     groupadd $x
+  done
+}
+
+
 function main() {
 
   analysis_args "$@"
@@ -365,9 +365,10 @@ function main() {
 
   check_if_home_directorys_exist
 
-  build_groups
-
   buile_accounts
+
+  build_other_groups
+
 }
 
 main "$@"
