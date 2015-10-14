@@ -5,7 +5,6 @@ readonly Old_Filesystem="$1"
 BOARD_oldAccGrpPairs=""
 BOARD_oldAccs=""
 BOARD_oldInitGrps=""
-BOARD_unvalidInitGrps=""
 BOARD_othrOldGrps=""
 
 function analysis_args() {
@@ -164,16 +163,6 @@ function is_valid_group() {
 }
 
 
-function get_unvalid_initial_groups(){
-  local x
-
-  echo "$BOARD_oldInitGrps" \
-   | while read x ; do
-    if ! is_valid_group $x ; then echo "$x" ; fi
-  done
-}
-
-
 function get_other_old_groups() {
   local x groupID
 
@@ -198,8 +187,6 @@ function process_boarded_variables() {
   BOARD_oldAccs="$( get_old_accounts )"
 
   BOARD_oldInitGrps="$( get_old_initial_groups )"
-
-  BOARD_unvalidInitGrps="$( get_unvalid_initial_groups )"
 
   BOARD_othrOldGrps="$( get_other_old_groups )"
 
