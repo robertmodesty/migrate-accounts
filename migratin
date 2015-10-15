@@ -2,10 +2,10 @@
 
 readonly Old_Filesystem="$1"
 
-BOARD_oldAccGrpPairs=""
-BOARD_oldAccs=""
-BOARD_oldInitGrps=""
-BOARD_othrOldGrps=""
+OldAccountGroupPairs=""
+OldAccounts=""
+OldInitialGroups=""
+OtherOldGroups=""
 
 function analysis_args() {
 
@@ -113,14 +113,14 @@ function get_old_accounts_with_initial_group() {
 
 function get_old_accounts() {
 
-  echo "$BOARD_oldAccGrpPairs" \
+  echo "$OldAccountGroupPairs" \
    | cut_field 1
 }
 
 
 function get_old_initial_groups() {
 
-  echo "$BOARD_oldAccGrpPairs" \
+  echo "$OldAccountGroupPairs" \
    | cut_field 2 \
    | sort \
    | uniq
@@ -128,7 +128,7 @@ function get_old_initial_groups() {
 
 
 function is_old_initial_group() {
-  local oldInitGrps=" $( echo $BOARD_oldInitGrps ) "
+  local oldInitGrps=" $( echo $OldInitialGroups ) "
 
   test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
   return $?
@@ -180,15 +180,15 @@ function get_other_old_groups() {
 }
 
 
-function process_boarded_variables() {
+function process_readonly_variables() {
 
-  BOARD_oldAccGrpPairs="$( get_old_accounts_with_initial_group )"
+  readonly OldAccountGroupPairs="$( get_old_accounts_with_initial_group )"
 
-  BOARD_oldAccs="$( get_old_accounts )"
+  readonly OldAccounts="$( get_old_accounts )"
 
-  BOARD_oldInitGrps="$( get_old_initial_groups )"
+  readonly OldInitialGroups="$( get_old_initial_groups )"
 
-  BOARD_othrOldGrps="$( get_other_old_groups )"
+  readonly OtherOldGroups="$( get_other_old_groups )"
 
 }
 
@@ -197,21 +197,21 @@ function check_account_group_names() {
   local Vaccs Vgrps x notClean
 
   Vaccs="$(
-    echo "$BOARD_oldAccs" \
+    echo "$OldAccounts" \
      | while read x ; do
       if is_valid_user $x ; then echo "$x" ; fi
     done
   )"
 
   VInitGrps="$(
-    echo "$BOARD_oldInitGrps" \
+    echo "$OldInitialGroups" \
      | while read x ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
 
   Vgrps="$(
-    echo "$BOARD_othrOldGrps" \
+    echo "$OtherOldGroups" \
      | while read x ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
@@ -261,7 +261,7 @@ function check_if_home_directorys_exist() {
   local homeDirectorys
 
   homeDirectorys="$(
-    echo "$BOARD_oldAccs" \
+    echo "$OldAccounts" \
      | while read x ; do
       if [ -e "/home/$x" ] ; then echo "$x" ; fi
     done
@@ -307,7 +307,7 @@ function get_user_unshadow_password() {
 function buile_accounts() {
   local comment initGrp password shadowData
 
-  echo "$BOARD_oldAccs" \
+  echo "$OldAccounts" \
    | while read x ; do
 
     comment="$( get_user_comment $x )"
@@ -333,7 +333,7 @@ function buile_accounts() {
 function build_other_groups() {
   local x
 
-  echo "$BOARD_othrOldGrps" \
+  echo "$OtherOldGroups" \
    | while read x ; do
      groupadd $x
   done
@@ -346,7 +346,7 @@ function main() {
 
   exit_if_no_root_permission
 
-  process_boarded_variables
+  process_readonly_variables
 
   check_account_group_names
 
