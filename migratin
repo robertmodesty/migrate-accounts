@@ -168,7 +168,7 @@ function get_other_old_groups() {
 
   exec 3< "$old_group"
   while read -u 3 x ; do
-    groupID="$( cup_field 3 "$x" )"
+    groupID="$( cut_field 3 "$x" )"
     x="${x%%:*}"
     if ! is_old_initial_group "$x" \
       && [   $groupID -ge $FirstGroup \
@@ -245,7 +245,7 @@ function check_account_group_names() {
     read -p "Will this be fine? (Y/n) " x
     x="${x^^}"
 
-    while [ "Y" == "${x:=Y}" -o "N" == "$x" ] ; do
+    while [ "Y" != "${x:=Y}" -a "N" != "$x" ] ; do
       read -p "Please insert 'Y' or 'N': " x
       x="${x^^}"
     done
