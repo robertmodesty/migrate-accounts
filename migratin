@@ -286,14 +286,15 @@ function get_user_comment() {
 
 
 function get_user_initial_group() {
-  local groupID="$(
+  local x
 
-    grep "^$1:" "$old_passwd" \
-      | cut_field 4
-  )"
-
-  grep "^[^:]*:[^:]*:$groupID:" "$old_group" \
-    | cut_field 1
+  echo "$OldAccountGroupPairs" \
+   | while read x ; do
+    if [ "$1" == "${x#*:}" ] ; then
+      echo "${x%:*}"
+      break
+    fi
+  done
 }
 
 
