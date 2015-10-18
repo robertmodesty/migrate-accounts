@@ -2,10 +2,23 @@
 
 readonly Old_Filesystem="$1"
 
-OldAccountGroupPairs=""
-OldAccounts=""
-OldInitialGroups=""
-OtherOldGroups=""
+# ******* Under here are list of readonly variables *******
+
+#   setup in function analysis_args():
+#       readonly FirstAccount
+#       readonly FirstGroup
+#       readonly LastAccount
+#       readonly LastGroup
+#       readonly old_passwd
+#       readonly old_shadow
+#       readonly old_group
+#       readonly old_gshadow
+
+#   setup in function process_readonly_variables():
+#       readonly OldAccountGroupPairs
+#       readonly OldAccounts
+#       readonly OldInitialGroups
+#       readonly OtherOldGroups
 
 function analysis_args() {
 
