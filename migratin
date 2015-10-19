@@ -15,10 +15,10 @@ readonly Old_Filesystem="$1"
 #       readonly old_gshadow
 
 #   setup in function process_readonly_variables():
-#       readonly OldAccountGroupPairs
-#       readonly OldAccounts
-#       readonly OldInitialGroups
-#       readonly OtherOldGroups
+#       readonly MigratoryAccGrpPairs
+#       readonly MigratoryAccounts
+#       readonly MigratoryInitialGroups
+#       readonly OtherMigratoryGroups
 
 function analysis_args() {
 
@@ -126,14 +126,14 @@ function get_old_accounts_with_initial_group() {
 
 function get_old_accounts() {
 
-  echo "$OldAccountGroupPairs" \
+  echo "$MigratoryAccGrpPairs" \
    | cut_field 1
 }
 
 
 function get_old_initial_groups() {
 
-  echo "$OldAccountGroupPairs" \
+  echo "$MigratoryAccGrpPairs" \
    | cut_field 2 \
    | sort \
    | uniq
@@ -141,7 +141,7 @@ function get_old_initial_groups() {
 
 
 function is_old_initial_group() {
-  local oldInitGrps=" $( echo $OldInitialGroups ) "
+  local oldInitGrps=" $( echo $MigratoryInitialGroups ) "
 
   test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
   return $?
@@ -195,13 +195,13 @@ function get_other_old_groups() {
 
 function process_readonly_variables() {
 
-  readonly OldAccountGroupPairs="$( get_old_accounts_with_initial_group )"
+  readonly MigratoryAccGrpPairs="$( get_old_accounts_with_initial_group )"
 
-  readonly OldAccounts="$( get_old_accounts )"
+  readonly MigratoryAccounts="$( get_old_accounts )"
 
-  readonly OldInitialGroups="$( get_old_initial_groups )"
+  readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  readonly OtherOldGroups="$( get_other_old_groups )"
+  readonly OtherMigratoryGroups="$( get_other_old_groups )"
 
 }
 
@@ -210,21 +210,21 @@ function check_account_group_names() {
   local Vaccs Vgrps x notClean
 
   Vaccs="$(
-    echo "$OldAccounts" \
+    echo "$MigratoryAccounts" \
      | while read x ; do
       if is_valid_user $x ; then echo "$x" ; fi
     done
   )"
 
   VInitGrps="$(
-    echo "$OldInitialGroups" \
+    echo "$MigratoryInitialGroups" \
      | while read x ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
 
   Vgrps="$(
-    echo "$OtherOldGroups" \
+    echo "$OtherMigratoryGroups" \
      | while read x ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
@@ -274,7 +274,7 @@ function check_if_home_directorys_exist() {
   local homeDirectorys
 
   homeDirectorys="$(
-    echo "$OldAccounts" \
+    echo "$MigratoryAccounts" \
      | while read x ; do
       if [ -e "/home/$x" ] ; then echo "$x" ; fi
     done
@@ -301,7 +301,7 @@ function get_user_comment() {
 function get_user_initial_group() {
   local x
 
-  echo "$OldAccountGroupPairs" \
+  echo "$MigratoryAccGrpPairs" \
    | while read x ; do
     if [ "$1" == "${x#*:}" ] ; then
       echo "${x%:*}"
@@ -321,7 +321,7 @@ function get_user_unshadow_password() {
 function buile_accounts() {
   local comment initGrp password shadowData
 
-  echo "$OldAccounts" \
+  echo "$MigratoryAccounts" \
    | while read x ; do
 
     comment="$( get_user_comment $x )"
@@ -347,7 +347,7 @@ function buile_accounts() {
 function build_other_groups() {
   local x
 
-  echo "$OtherOldGroups" \
+  echo "$OtherMigratoryGroups" \
    | while read x ; do
      groupadd $x
   done
