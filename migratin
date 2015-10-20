@@ -354,6 +354,24 @@ function build_other_groups() {
 }
 
 
+function set_effective_groups() {
+  local user effGroups effGrp
+
+  echo "$MigratoryAccounts" \
+   | while read user ; do
+    effGroups="$( grep -e "^[^:]*:[^:]*:[^:]*:$x," \
+                    -e "^[^:]*:[^:]*:[^:]*:$x$" \
+                    -e "^[^:]*:[^:]*:[^:]*:.*,$x," \
+                    -e "^[^:]*:[^:]*:[^:]*:.*,$x$" "$old_group" \
+                | cut_field 1 )"
+    for effGrp in $effGroups ; do
+      if ! is_valid_group $effGrp ; then groupadd $effGrp ; fi
+      usermod -a -G $effGrp $user
+    done
+  done
+}
+
+
 function main() {
 
   analysis_args "$@"
@@ -369,6 +387,8 @@ function main() {
   buile_accounts
 
   build_other_groups
+
+  set_effective_groups
 
 }
 
