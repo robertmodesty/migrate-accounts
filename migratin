@@ -372,6 +372,13 @@ function set_effective_groups() {
 }
 
 
+function old_home_directory_of_user() {
+
+  grep "^$1:" "$old_passwd" \
+    | cut_field 6
+}
+
+
 function main() {
 
   analysis_args "$@"
