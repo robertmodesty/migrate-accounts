@@ -378,6 +378,18 @@ function old_home_directory_of_user() {
     | cut_field 6
 }
 
+function name_of_old_userID() {
+
+  grep "^[^:]*:[^:]*:$1:" "$old_passwd" \
+    | cut_field 1
+}
+
+function name_of_old_groupID() {
+
+  grep "^[^:]*:[^:]*:$1:" "$old_group" \
+    | cut_field 1
+}
+
 
 function main() {
 
