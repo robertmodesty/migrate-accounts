@@ -207,7 +207,7 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local Vaccs Vgrps x notClean
+  local Vaccs VInitGrps Vgrps x notClean
 
   Vaccs="$(
     echo "$MigratoryAccounts" \
