@@ -390,6 +390,27 @@ function name_of_old_groupID() {
     | cut_field 1
 }
 
+function copy_home_directorys() {
+  local user filename ownerID groupID
+
+  echo "$MigratoryAccounts" \
+   | while read user ; do
+
+    cp -a $Old_Filesystem/$(old_home_directory_of_user $user)/* /home/$user
+
+    find /home/$user/* -printf "%U:%G:%p" \
+     | while read filename ; do
+      ownerID="${filename%%:*}"
+      filename="${filename#*:}"
+      groupID="${filename%%:*}"
+      filename="${filename#*:}"
+      chown $(name_of_old_userID $ownerID):$(name_of_old_groupID $groupID) \
+              "$filename"
+    done
+
+  done
+}
+
 
 function main() {
 
@@ -408,6 +429,8 @@ function main() {
   build_other_groups
 
   set_effective_groups
+
+  copy_home_directorys
 
 }
 
