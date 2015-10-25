@@ -210,22 +210,19 @@ function check_account_group_names() {
   local Vaccs VInitGrps Vgrps x notClean
 
   Vaccs="$(
-    echo "$MigratoryAccounts" \
-     | while read x ; do
+    for x in $MigratoryAccounts ; do
       if is_valid_user $x ; then echo "$x" ; fi
     done
   )"
 
   VInitGrps="$(
-    echo "$MigratoryInitialGroups" \
-     | while read x ; do
+    for x in $MigratoryInitialGroups  ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
 
   Vgrps="$(
-    echo "$OtherMigratoryGroups" \
-     | while read x ; do
+    for x in $OtherMigratoryGroups ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
@@ -274,8 +271,7 @@ function check_if_home_directorys_exist() {
   local homeDirectorys
 
   homeDirectorys="$(
-    echo "$MigratoryAccounts" \
-     | while read x ; do
+    for x in $MigratoryAccounts ; do
       if [ -e "/home/$x" ] ; then echo "$x" ; fi
     done
   )"
@@ -301,8 +297,7 @@ function get_user_comment() {
 function get_user_initial_group() {
   local x
 
-  echo "$MigratoryAccGrpPairs" \
-   | while read x ; do
+  for x in $MigratoryAccGrpPairs ; do
     if [ "$1" == "${x#*:}" ] ; then
       echo "${x%:*}"
       break
@@ -321,8 +316,7 @@ function get_user_unshadow_password() {
 function buile_accounts() {
   local comment initGrp password shadowData
 
-  echo "$MigratoryAccounts" \
-   | while read x ; do
+  for x in $MigratoryAccounts ; do
 
     comment="$( get_user_comment $x )"
     initGrp="$( get_user_initial_group $x )"
@@ -347,8 +341,7 @@ function buile_accounts() {
 function build_other_groups() {
   local x
 
-  echo "$OtherMigratoryGroups" \
-   | while read x ; do
+  for x in $OtherMigratoryGroups ; do
      groupadd $x
   done
 }
@@ -357,8 +350,7 @@ function build_other_groups() {
 function set_effective_groups() {
   local user effGroups effGrp
 
-  echo "$MigratoryAccounts" \
-   | while read user ; do
+  for user in $MigratoryAccounts ; do
     effGroups="$( grep -e "^[^:]*:[^:]*:[^:]*:$x," \
                     -e "^[^:]*:[^:]*:[^:]*:$x$" \
                     -e "^[^:]*:[^:]*:[^:]*:.*,$x," \
@@ -393,8 +385,7 @@ function name_of_old_groupID() {
 function copy_home_directorys() {
   local user filename ownerID groupID
 
-  echo "$MigratoryAccounts" \
-   | while read user ; do
+  for user in $MigratoryAccounts ; do
 
     cp -a $Old_Filesystem/$(old_home_directory_of_user $user)/* /home/$user
 
