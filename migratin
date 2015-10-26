@@ -18,7 +18,7 @@ readonly Old_Filesystem="$1"
 #       readonly MigratoryAccGrpPairs
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
-#       readonly OtherMigratoryGroups
+#       readonly MigratoryEffectiveGroups
 
 function analysis_args() {
 
@@ -176,20 +176,18 @@ function is_valid_group() {
 }
 
 
-function get_other_old_groups() {
-  local x groupID
+function get_old_effective_groups() {
+  local user
 
-  exec 3< "$old_group"
-  while read -u 3 x ; do
-    groupID="$( cut_field 3 "$x" )"
-    x="${x%%:*}"
-    if ! is_old_initial_group "$x" \
-      && [   $groupID -ge $FirstGroup \
-          -a $groupID -le $LastGroup ] ; then
-      echo "$x"
-    fi
-  done
-  exec 3<&-
+  for user in $MigratoryAccounts ; do
+    grep -e "^[^:]*:[^:]*:[^:]*:$x," \
+         -e "^[^:]*:[^:]*:[^:]*:$x$" \
+         -e "^[^:]*:[^:]*:[^:]*:.*,$x," \
+         -e "^[^:]*:[^:]*:[^:]*:.*,$x$" "$old_group" \
+     | cut_field 1
+  done \
+   | sort
+   | uniq
 }
 
 
@@ -201,13 +199,13 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  readonly OtherMigratoryGroups="$( get_other_old_groups )"
+  readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
 
 }
 
 
 function check_account_group_names() {
-  local Vaccs VInitGrps Vgrps x notClean
+  local Vaccs VInitGrps VEffGrps x notClean
 
   Vaccs="$(
     for x in $MigratoryAccounts ; do
@@ -221,8 +219,8 @@ function check_account_group_names() {
     done
   )"
 
-  Vgrps="$(
-    for x in $OtherMigratoryGroups ; do
+  VEffGrps="$(
+    for x in $MigratoryEffectiveGroups ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
@@ -235,10 +233,10 @@ function check_account_group_names() {
     notClean="1"
   fi
 
-  if [ -n "$Vgrps" ] ; then
+  if [ -n "$VEffGrps" ] ; then
     echo These groups had been already builded:
     echo
-    echo $Vgrps
+    echo $VEffGrps
     echo
     echo Please correct it before migration.
     notClean="1"
@@ -338,11 +336,11 @@ function buile_accounts() {
 }
 
 
-function build_other_groups() {
+function build_effective_groups() {
   local x
 
-  for x in $OtherMigratoryGroups ; do
-     groupadd $x
+  for x in $MigratoryEffectiveGroups ; do
+    if ! is_valid_group $x groupadd $x ; fi
   done
 }
 
@@ -417,7 +415,7 @@ function main() {
 
   buile_accounts
 
-  build_other_groups
+  build_effective_groups
 
   set_effective_groups
 
