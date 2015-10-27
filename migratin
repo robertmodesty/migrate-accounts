@@ -234,12 +234,11 @@ function check_account_group_names() {
   fi
 
   if [ -n "$VEffGrps" ] ; then
-    echo These groups had been already builded:
+    echo These effective groups had been already builded:
     echo
     echo $VEffGrps
     echo
     echo Please correct it before migration.
-    notClean="1"
   fi
 
   if [ -n "$VinitGrps" ] ; then
@@ -249,7 +248,7 @@ function check_account_group_names() {
     echo
   fi
 
-  if [ -n "$VinitGrps" -a "1" != "$notClean" ] ; then
+  if [ -n "$VEffGrps" -o -n "$VinitGrps" ] && [ "1" != "$notClean" ] ; then
     read -p "Will this be fine? (Y/n) " x
     x="${x^^}"
 
