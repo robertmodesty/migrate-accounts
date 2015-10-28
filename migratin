@@ -6,9 +6,7 @@ readonly Old_Filesystem="$1"
 
 #   setup in function analysis_args():
 #       readonly FirstAccount
-#       readonly FirstGroup
 #       readonly LastAccount
-#       readonly LastGroup
 #       readonly old_passwd
 #       readonly old_shadow
 #       readonly old_group
@@ -34,14 +32,8 @@ function analysis_args() {
       "--start="*)
         readonly FirstAccount="${1:8}"
         ;;
-      "--gstart="*)
-        readonly FirstGroup="${1:9}"
-        ;;
       "--end="*)
         readonly LastAccount="${1:6}"
-        ;;
-      "--gend="*)
-        readonly LastGroup="${1:7}"
         ;;
       "--passwd="*)
         readonly old_passwd="${1:9}"
@@ -60,9 +52,7 @@ function analysis_args() {
   done
 
   test -z "$FirstAccount" && readonly FirstAccount=500
-  test -z "$FirstGroup"   && readonly FirstGroup="$FirstAccount"
   test -z "$LastAccount"  && readonly LastAccount=65533
-  test -z "$LastGroup"    && readonly LastGroup=65533
   test -z "$old_passwd"   && readonly old_passwd="$Old_Filesystem/etc/passwd"
   test -z "$old_shadow"   && readonly old_shadow="$Old_Filesystem/etc/shadow"
   test -z "$old_group"    && readonly old_group="$Old_Filesystem/etc/group"
