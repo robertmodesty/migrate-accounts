@@ -344,7 +344,6 @@ function set_effective_groups() {
                     -e "^[^:]*:[^:]*:[^:]*:.*,$x$" "$old_group" \
                 | cut_field 1 )"
     for effGrp in $effGroups ; do
-      if ! is_valid_group $effGrp ; then groupadd $effGrp ; fi
       usermod -a -G $effGrp $user
     done
   done
