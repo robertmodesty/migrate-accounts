@@ -47,6 +47,9 @@ function analysis_args() {
       "--gshadow="*)
         readonly Old_gshadow="${1:10}"
         ;;
+      "--no-eff-grp")
+        readonly Flag_No_Eff_Grp=1
+        ;;
     esac
     shift
   done
@@ -193,7 +196,8 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
+  test "$Flag_No_Eff_Grp" != "1" \
+    && readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
 
 }
 
@@ -407,9 +411,10 @@ function main() {
 
   buile_accounts
 
-  build_effective_groups
-
-  set_effective_groups
+  if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+    build_effective_groups
+    set_effective_groups
+  fi
 
   copy_home_directorys
 
