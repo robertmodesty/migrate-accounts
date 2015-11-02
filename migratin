@@ -98,6 +98,26 @@ function cut_field() {
   fi
 }
 
+function grep_field() {
+  local -i step field=$1
+  local inFile=0 pattern="$2" y
+
+  if [ -n "$3" ] ; then
+    inFile=9
+    exec 9< "$3"
+  fi
+
+  while read -u $inFile x ; do
+    y="$x"
+    for (( step=1 ; step<field ; step++ )) ; do
+      y=${y#*:}
+    done
+    test "$pattern" == "${y%%:*}" && echo "$x"
+  done
+
+  exec 9<&-
+}
+
 
 function get_old_accounts_with_initial_group() {
   local x y userID groupID
