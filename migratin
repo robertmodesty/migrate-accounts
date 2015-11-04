@@ -129,7 +129,7 @@ function get_old_accounts_with_initial_group() {
         -a $userID -le $LastAccount ] ; then
       groupID="$( cut_field 4 "$x" )"
       echo -n "${x%%:*}:"
-      grep "^[^:]*:[^:]*:$groupID:" "$Old_group" \
+      grep_field 3 "$groupID" "$Old_group" \
        | cut_field 1
     fi
   done
@@ -304,7 +304,7 @@ function check_if_home_directorys_exist() {
 
 function get_user_comment() {
 
-  grep "^$1:" "$Old_passwd" \
+  grep_field 1 "$1" "$Old_passwd" \
     | cut_field 5
 }
 
@@ -323,7 +323,7 @@ function get_user_initial_group() {
 
 function get_user_unshadow_password() {
 
-  grep "^$1:" "$Old_passwd" \
+  grep_field 1 "$1" "$Old_passwd" \
     | cut_field 2
 }
 
@@ -344,7 +344,7 @@ function buile_accounts() {
     password="$( get_user_unshadow_password $x )"
     sed -i "s/^$x:[^:]*/$x:$password/" /etc/passwd
 
-    shadowData="$( grep "^$x:" "$Old_shadow" )"
+    shadowData="$( grep_field 1 "$x" "$Old_shadow" )"
     if [ -n "$shadowData" ] ; then
       sed -i "s/^$x:.*/$shadowData/" /etc/shadow
     fi
@@ -380,19 +380,19 @@ function set_effective_groups() {
 
 function old_home_directory_of_user() {
 
-  grep "^$1:" "$Old_passwd" \
+  grep_field 1 "$1" "$Old_passwd" \
     | cut_field 6
 }
 
 function name_of_old_userID() {
 
-  grep "^[^:]*:[^:]*:$1:" "$Old_passwd" \
+  grep_field 3 "$1" "$Old_passwd" \
     | cut_field 1
 }
 
 function name_of_old_groupID() {
 
-  grep "^[^:]*:[^:]*:$1:" "$Old_group" \
+  grep_field 3 "$1" "$Old_group" \
     | cut_field 1
 }
 
