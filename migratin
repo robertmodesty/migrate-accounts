@@ -189,6 +189,31 @@ function is_valid_group() {
 }
 
 
+function effective_groups_of_user() {
+  local userName="$1"
+  local x effMembrs membr
+
+  exec 9< "$Old_group"
+  while read -u 9 x ; do
+
+    effMembrs="${x##*:},"
+    membr="${effMembrs%%,*}"
+    effMembrs="${effMembrs#*,}"
+
+    while [ -n "$membr" ] ; do
+      if [ "$membr" == "$userName" ] ; then
+        echo "${x%%:*}"
+        break
+      fi
+      membr="${effMembrs%%,*}"
+      effMembrs="${effMembrs#*,}"
+    done
+
+  done
+  exec 9<&-
+}
+
+
 function get_old_effective_groups() {
   local user
 
