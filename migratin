@@ -193,10 +193,10 @@ function get_old_effective_groups() {
   local user
 
   for user in $MigratoryAccounts ; do
-    grep -e "^[^:]*:[^:]*:[^:]*:$x," \
-         -e "^[^:]*:[^:]*:[^:]*:$x$" \
-         -e "^[^:]*:[^:]*:[^:]*:.*,$x," \
-         -e "^[^:]*:[^:]*:[^:]*:.*,$x$" "$Old_group" \
+    grep -e "^[^:]*:[^:]*:[^:]*:$user," \
+         -e "^[^:]*:[^:]*:[^:]*:$user$" \
+         -e "^[^:]*:[^:]*:[^:]*:.*,$user," \
+         -e "^[^:]*:[^:]*:[^:]*:.*,$user$" "$Old_group" \
      | cut_field 1
   done \
    | sort
@@ -366,10 +366,10 @@ function set_effective_groups() {
   local user effGroups effGrp
 
   for user in $MigratoryAccounts ; do
-    effGroups="$( grep -e "^[^:]*:[^:]*:[^:]*:$x," \
-                    -e "^[^:]*:[^:]*:[^:]*:$x$" \
-                    -e "^[^:]*:[^:]*:[^:]*:.*,$x," \
-                    -e "^[^:]*:[^:]*:[^:]*:.*,$x$" "$Old_group" \
+    effGroups="$( grep -e "^[^:]*:[^:]*:[^:]*:$user," \
+                    -e "^[^:]*:[^:]*:[^:]*:$user$" \
+                    -e "^[^:]*:[^:]*:[^:]*:.*,$user," \
+                    -e "^[^:]*:[^:]*:[^:]*:.*,$user$" "$Old_group" \
                 | cut_field 1 )"
     for effGrp in $effGroups ; do
       usermod -a -G $effGrp $user
