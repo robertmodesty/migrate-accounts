@@ -218,11 +218,7 @@ function get_old_effective_groups() {
   local user
 
   for user in $MigratoryAccounts ; do
-    grep -e "^[^:]*:[^:]*:[^:]*:$user," \
-         -e "^[^:]*:[^:]*:[^:]*:$user$" \
-         -e "^[^:]*:[^:]*:[^:]*:.*,$user," \
-         -e "^[^:]*:[^:]*:[^:]*:.*,$user$" "$Old_group" \
-     | cut_field 1
+    effective_groups_of_user $user
   done \
    | sort
    | uniq
@@ -391,11 +387,7 @@ function set_effective_groups() {
   local user effGroups effGrp
 
   for user in $MigratoryAccounts ; do
-    effGroups="$( grep -e "^[^:]*:[^:]*:[^:]*:$user," \
-                    -e "^[^:]*:[^:]*:[^:]*:$user$" \
-                    -e "^[^:]*:[^:]*:[^:]*:.*,$user," \
-                    -e "^[^:]*:[^:]*:[^:]*:.*,$user$" "$Old_group" \
-                | cut_field 1 )"
+    effGroups="$( effective_groups_of_user $user )"
     for effGrp in $effGroups ; do
       usermod -a -G $effGrp $user
     done
