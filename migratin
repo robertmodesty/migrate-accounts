@@ -119,7 +119,7 @@ function grep_field() {
 }
 
 
-function get_old_accounts_with_initial_group() {
+function get_old_accounts_and_initial_groups() {
   local x y userID groupID
 
   exec 3< "$Old_passwd"
@@ -227,7 +227,7 @@ function get_old_effective_groups() {
 
 function process_readonly_variables() {
 
-  readonly MigratoryAccGrpPairs="$( get_old_accounts_with_initial_group )"
+  readonly MigratoryAccGrpPairs="$( get_old_accounts_and_initial_groups )"
   if [ -z "$MigratoryAccGrpPairs" ] ; then
     echo Can not find any migratory account!
     exit 1
