@@ -120,6 +120,22 @@ function grep_field() {
   exec 9<&-
 }
 
+function prefixed_with_field_n() {
+  local x y inFile=0
+
+  if [ -n "$2" ]; then
+    inFile=9
+    exec 9< "$2"
+  fi
+
+  while read -u $inFile x ; do
+    y="$( cut_field $1 "$x" )"
+    echo "$y $x"
+  done
+
+  exec 9<&-
+}
+
 
 function get_old_accounts_and_initial_groups() {
   local x y userID groupID
