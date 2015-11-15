@@ -136,6 +136,14 @@ function prefixed_with_field_n() {
   exec 9<&-
 }
 
+function remove_prefixing_field() {
+  local x
+
+  while read x ; do
+    echo "${x#* }"
+  done
+}
+
 
 function get_old_accounts_and_initial_groups() {
   local x y userID groupID
