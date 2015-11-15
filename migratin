@@ -144,6 +144,20 @@ function remove_prefixing_field() {
   done
 }
 
+function sort_old_passwd_file_by_uid() {
+
+  prefixed_with_field_n 3 "$Old_passwd" \
+   | sort -n
+   | remove_prefixing_field
+}
+
+function sort_old_group_file_by_gid() {
+
+  prefixed_with_field_n 3 "$Old_group" \
+   | sort -n
+   | remove_prefixing_field
+}
+
 
 function get_old_accounts_and_initial_groups() {
   local x y userID groupID
