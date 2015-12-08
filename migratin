@@ -20,63 +20,9 @@ readonly Old_Filesystem="$1"
 #       readonly MigratoryInitialGroups
 #       readonly MigratoryEffectiveGroups
 
-function analysis_args() {
-
-  if [   ! -d "$Old_Filesystem" ] ; then
-    echo "'$Old_Filesystem' is not a directiory." 1>&2
-    exit 1
-  fi
-
-  shift
-
-  while [ -n "$1" ] ; do
-    case "$1" in
-      "--start="*)
-        readonly FirstAccount="${1:8}"
-        ;;
-      "--end="*)
-        readonly LastAccount="${1:6}"
-        ;;
-      "--passwd="*)
-        readonly Old_passwd="${1:9}"
-        ;;
-      "--shadow="*)
-        readonly Old_shadow="${1:9}"
-        ;;
-      "--group="*)
-        readonly Old_group="${1:8}"
-        ;;
-      "--gshadow="*)
-        readonly Old_gshadow="${1:10}"
-        ;;
-      "--no-eff-grp")
-        readonly Flag_No_Eff_Grp=1
-        ;;
-    esac
-    shift
-  done
-
-  test -z "$FirstAccount" && readonly FirstAccount=500
-  test -z "$LastAccount"  && readonly LastAccount=65533
-  test -z "$Old_passwd"   && readonly Old_passwd="$Old_Filesystem/etc/passwd"
-  test -z "$Old_shadow"   && readonly Old_shadow="$Old_Filesystem/etc/shadow"
-  test -z "$Old_group"    && readonly Old_group="$Old_Filesystem/etc/group"
-  test -z "$Old_gshadow"  && readonly Old_gshadow="$Old_Filesystem/etc/gshadow"
-
-  test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
-  test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
-  test ! -f "$Old_group"   && echo "'$Old_group' is not a file."   && exit 1
-  test ! -f "$Old_gshadow" && echo "'$Old_gshadow' is not a file." && exit 1
-}
 
 
-function exit_if_no_root_permission() {
 
-  if [ "$(id -u)" != "0" ]; then
-    echo "This script must be run with root permission!" 1>&2
-    exit 1
-  fi
-}
 
 
 function cut_field() {
@@ -144,53 +90,7 @@ function remove_prefixing_field() {
   done
 }
 
-function sort_old_passwd_file_by_uid() {
 
-  prefixed_with_field_n 3 "$Old_passwd" \
-   | sort -n
-   | remove_prefixing_field
-}
-
-function sort_old_group_file_by_gid() {
-
-  prefixed_with_field_n 3 "$Old_group" \
-   | sort -n
-   | remove_prefixing_field
-}
-
-
-function get_old_accounts_and_initial_groups() {
-  local x y userID groupID
-
-  exec 3< "$Old_passwd"
-  while read -u 3 x ; do
-    userID="$( cut_field 3 "$x" )"
-    if [   $userID -ge $FirstAccount \
-        -a $userID -le $LastAccount ] ; then
-      groupID="$( cut_field 4 "$x" )"
-      echo -n "${x%%:*}:"
-      grep_field 3 "$groupID" "$Old_group" \
-       | cut_field 1
-    fi
-  done
-  exec 3<&-
-}
-
-
-function get_old_accounts() {
-
-  echo "$MigratoryAccGrpPairs" \
-   | cut_field 1
-}
-
-
-function get_old_initial_groups() {
-
-  echo "$MigratoryAccGrpPairs" \
-   | cut_field 2 \
-   | sort \
-   | uniq
-}
 
 
 function is_old_initial_group() {
@@ -228,7 +128,6 @@ function is_valid_group() {
   return 1
 }
 
-
 function effective_groups_of_user() {
   local userName="$1"
   local x effMembrs membr
@@ -253,6 +152,96 @@ function effective_groups_of_user() {
   exec 9<&-
 }
 
+function get_user_comment() {
+
+  grep_field 1 "$1" "$Old_passwd" \
+    | cut_field 5
+}
+
+function get_user_initial_group() {
+  local x
+
+  for x in $MigratoryAccGrpPairs ; do
+    if [ "$1" == "${x#*:}" ] ; then
+      echo "${x%:*}"
+      break
+    fi
+  done
+}
+
+function get_user_unshadow_password() {
+
+  grep_field 1 "$1" "$Old_passwd" \
+    | cut_field 2
+}
+
+function old_home_directory_of_user() {
+
+  grep_field 1 "$1" "$Old_passwd" \
+    | cut_field 6
+}
+
+function name_of_old_userID() {
+
+  grep_field 3 "$1" "$Old_passwd" \
+    | cut_field 1
+}
+
+function name_of_old_groupID() {
+
+  grep_field 3 "$1" "$Old_group" \
+    | cut_field 1
+}
+
+
+
+
+
+
+function sort_old_passwd_file_by_uid() {
+
+  prefixed_with_field_n 3 "$Old_passwd" \
+   | sort -n
+   | remove_prefixing_field
+}
+
+function sort_old_group_file_by_gid() {
+
+  prefixed_with_field_n 3 "$Old_group" \
+   | sort -n
+   | remove_prefixing_field
+}
+
+function get_old_accounts_and_initial_groups() {
+  local x y userID groupID
+
+  exec 3< "$Old_passwd"
+  while read -u 3 x ; do
+    userID="$( cut_field 3 "$x" )"
+    if [   $userID -ge $FirstAccount \
+        -a $userID -le $LastAccount ] ; then
+      groupID="$( cut_field 4 "$x" )"
+      echo -n "${x%%:*}:"
+      grep_field 3 "$groupID" "$Old_group" \
+       | cut_field 1
+    fi
+  done
+  exec 3<&-
+}
+
+function get_old_accounts() {
+
+  echo "$MigratoryAccGrpPairs" \
+   | cut_field 1
+}
+
+function get_old_initial_groups() {
+
+  echo "$MigratoryAccGrpPairs" \
+   | cut_field 2 \
+   | sort \
+   | uniq
+}
 
 function get_old_effective_groups() {
   local user
@@ -262,6 +251,68 @@ function get_old_effective_groups() {
   done \
    | sort
    | uniq
+}
+
+
+
+
+
+function exit_if_no_root_permission() {
+
+  if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run with root permission!" 1>&2
+    exit 1
+  fi
+}
+
+
+function analysis_args() {
+
+  if [   ! -d "$Old_Filesystem" ] ; then
+    echo "'$Old_Filesystem' is not a directiory." 1>&2
+    exit 1
+  fi
+
+  shift
+
+  while [ -n "$1" ] ; do
+    case "$1" in
+      "--start="*)
+        readonly FirstAccount="${1:8}"
+        ;;
+      "--end="*)
+        readonly LastAccount="${1:6}"
+        ;;
+      "--passwd="*)
+        readonly Old_passwd="${1:9}"
+        ;;
+      "--shadow="*)
+        readonly Old_shadow="${1:9}"
+        ;;
+      "--group="*)
+        readonly Old_group="${1:8}"
+        ;;
+      "--gshadow="*)
+        readonly Old_gshadow="${1:10}"
+        ;;
+      "--no-eff-grp")
+        readonly Flag_No_Eff_Grp=1
+        ;;
+    esac
+    shift
+  done
+
+  test -z "$FirstAccount" && readonly FirstAccount=500
+  test -z "$LastAccount"  && readonly LastAccount=65533
+  test -z "$Old_passwd"   && readonly Old_passwd="$Old_Filesystem/etc/passwd"
+  test -z "$Old_shadow"   && readonly Old_shadow="$Old_Filesystem/etc/shadow"
+  test -z "$Old_group"    && readonly Old_group="$Old_Filesystem/etc/group"
+  test -z "$Old_gshadow"  && readonly Old_gshadow="$Old_Filesystem/etc/gshadow"
+
+  test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
+  test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
+  test ! -f "$Old_group"   && echo "'$Old_group' is not a file."   && exit 1
+  test ! -f "$Old_gshadow" && echo "'$Old_gshadow' is not a file." && exit 1
 }
 
 
@@ -367,32 +418,6 @@ function check_if_home_directorys_exist() {
 }
 
 
-function get_user_comment() {
-
-  grep_field 1 "$1" "$Old_passwd" \
-    | cut_field 5
-}
-
-
-function get_user_initial_group() {
-  local x
-
-  for x in $MigratoryAccGrpPairs ; do
-    if [ "$1" == "${x#*:}" ] ; then
-      echo "${x%:*}"
-      break
-    fi
-  done
-}
-
-
-function get_user_unshadow_password() {
-
-  grep_field 1 "$1" "$Old_passwd" \
-    | cut_field 2
-}
-
-
 function buile_accounts() {
   local comment initGrp password shadowData
 
@@ -439,24 +464,6 @@ function set_effective_groups() {
 }
 
 
-function old_home_directory_of_user() {
-
-  grep_field 1 "$1" "$Old_passwd" \
-    | cut_field 6
-}
-
-function name_of_old_userID() {
-
-  grep_field 3 "$1" "$Old_passwd" \
-    | cut_field 1
-}
-
-function name_of_old_groupID() {
-
-  grep_field 3 "$1" "$Old_group" \
-    | cut_field 1
-}
-
 function copy_home_directorys() {
   local user filename ownerID groupID
 
@@ -478,11 +485,14 @@ function copy_home_directorys() {
 }
 
 
+
+
+
 function main() {
 
-  analysis_args "$@"
-
   exit_if_no_root_permission
+
+  analysis_args "$@"
 
   process_readonly_variables
 
@@ -500,5 +510,10 @@ function main() {
   copy_home_directorys
 
 }
+
+
+
+
+
 
 main "$@"
