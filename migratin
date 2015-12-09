@@ -1,8 +1,8 @@
 #!/bin/bash
 
-readonly Old_Filesystem="$1"
-
 # ******* Under here are list of readonly variables *******
+
+readonly Old_Filesystem="$1"
 
 #   setup in function analysis_args():
 #       readonly FirstAccount
@@ -24,6 +24,10 @@ readonly Old_Filesystem="$1"
 
 
 
+
+####################
+# General Functions:  Field Operation
+########################################################################
 
 function cut_field() {
   local -i step field=$1
@@ -92,6 +96,10 @@ function remove_prefixing_field() {
 
 
 
+
+####################
+# General Functions:  Account and Group Operation
+########################################################################
 
 function is_old_initial_group() {
   local oldInitGrps=" $( echo $MigratoryInitialGroups ) "
@@ -198,6 +206,10 @@ function name_of_old_groupID() {
 
 
 
+####################
+# functions prepare readonly variable data
+########################################################################
+
 function sort_old_passwd_file_by_uid() {
 
   prefixed_with_field_n 3 "$Old_passwd" \
@@ -256,6 +268,11 @@ function get_old_effective_groups() {
 
 
 
+
+
+####################
+# functions of all steps
+########################################################################
 
 function exit_if_no_root_permission() {
 
@@ -488,6 +505,10 @@ function copy_home_directorys() {
 
 
 
+####################
+#  Main Function
+########################################################################
+
 function main() {
 
   exit_if_no_root_permission
@@ -515,5 +536,6 @@ function main() {
 
 
 
+##### Start this program ######
 
 main "$@"
