@@ -70,30 +70,6 @@ function grep_field() {
   exec 9<&-
 }
 
-function prefixed_with_field_n() {
-  local x y inFile=0
-
-  if [ -n "$2" ]; then
-    inFile=9
-    exec 9< "$2"
-  fi
-
-  while read -u $inFile x ; do
-    y="$( cut_field $1 "$x" )"
-    echo "$y $x"
-  done
-
-  exec 9<&-
-}
-
-function remove_prefixing_field() {
-  local x
-
-  while read x ; do
-    echo "${x#* }"
-  done
-}
-
 
 
 
@@ -212,16 +188,12 @@ function name_of_old_groupID() {
 
 function sort_old_passwd_file_by_uid() {
 
-  prefixed_with_field_n 3 "$Old_passwd" \
-   | sort -n
-   | remove_prefixing_field
+  sort -t : -k 3 -n "$Old_passwd"
 }
 
 function sort_old_group_file_by_gid() {
 
-  prefixed_with_field_n 3 "$Old_group" \
-   | sort -n
-   | remove_prefixing_field
+  sort -t : -k 3 -n "$Old_group"
 }
 
 function get_old_accounts_and_initial_groups() {
