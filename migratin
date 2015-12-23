@@ -388,11 +388,11 @@ function check_account_group_names() {
 
 
 function check_if_home_directorys_exist() {
-  local homeDirectorys
+  local user homeDirectorys
 
   homeDirectorys="$(
-    for x in $MigratoryAccounts ; do
-      if [ -e "/home/$x" ] ; then echo "$x" ; fi
+    for user in $MigratoryAccounts ; do
+      if [ -e "/home/$user" ] ; then echo "$user" ; fi
     done
   )"
 
@@ -408,24 +408,24 @@ function check_if_home_directorys_exist() {
 
 
 function buile_accounts() {
-  local comment initGrp password shadowData
+  local user comment initGrp password shadowData
 
-  for x in $MigratoryAccounts ; do
+  for user in $MigratoryAccounts ; do
 
-    comment="$( get_user_comment $x )"
-    initGrp="$( get_user_initial_group $x )"
+    comment="$( get_user_comment $user )"
+    initGrp="$( get_user_initial_group $user )"
 
     if ! is_valid_group $initGrp ; then
       groupadd $initGrp
     fi
-    useradd -m -p 00000000 -c "$comment" -g $initGrp $x
+    useradd -m -p 00000000 -c "$comment" -g $initGrp $user
 
-    password="$( get_user_unshadow_password $x )"
-    sed -i "s/^$x:[^:]*/$x:$password/" /etc/passwd
+    password="$( get_user_unshadow_password $user )"
+    sed -i "s/^$user:[^:]*/$user:$password/" /etc/passwd
 
-    shadowData="$( grep_field 1 "$x" "$Old_shadow" )"
+    shadowData="$( grep_field 1 "$user" "$Old_shadow" )"
     if [ -n "$shadowData" ] ; then
-      sed -i "s/^$x:.*/$shadowData/" /etc/shadow
+      sed -i "s/^$user:.*/$shadowData/" /etc/shadow
     fi
 
   done
