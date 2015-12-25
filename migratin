@@ -436,7 +436,7 @@ function build_effective_groups() {
   local x
 
   for x in $MigratoryEffectiveGroups ; do
-    if ! is_valid_group $x groupadd $x ; fi
+    if ! is_valid_group $x ; then groupadd $x ; fi
   done
 }
 
