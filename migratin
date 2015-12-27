@@ -478,7 +478,7 @@ function copy_home_directorys() {
 
     cp -a $Old_Filesystem/$(old_home_directory_of_user $user)/* /home/$user
 
-    find /home/$user/* -printf "%U:%G:%p" \
+    find /home/$user/* -printf "%U:%G:%p\n" \
      | while read filename ; do
       ownerID="${filename%%:*}"
       filename="${filename#*:}"
