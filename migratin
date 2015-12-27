@@ -56,7 +56,7 @@ function cut_field() {
 
 function grep_field() {
   local -i step field=$1
-  local inFile=0 pattern="$2" y
+  local inFile=0 pattern="$2" retrnVal=1 y
 
   if [ -n "$3" ] ; then
     inFile=9
@@ -68,10 +68,14 @@ function grep_field() {
     for (( step=1 ; step<field ; step++ )) ; do
       y=${y#*:}
     done
-    test "$pattern" == "${y%%:*}" && echo "$x"
+    if [ "$pattern" == "${y%%:*}" ] ; then
+      echo "$x"
+      retrnVal=0
+    fi
   done
 
   exec 9<&-
+  return $retrnVal
 }
 
 
@@ -86,6 +90,12 @@ function is_old_initial_group() {
 
   test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
   return $?
+}
+
+function is_migratory_user() {
+
+  echo "$MigratoryAccounts" \
+   | grep_field 1 $1 > /dev/null
 }
 
 function is_valid_user() {
