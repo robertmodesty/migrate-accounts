@@ -303,6 +303,9 @@ function analysis_args() {
       "--no-eff-grp")
         readonly Flag_No_Eff_Grp=1
         ;;
+      "-m"|"--copy-mails")
+        readonly Old_maildir="$Old_Filesystem/var/spool/mail"
+        ;;
     esac
     shift
   done
