@@ -504,14 +504,14 @@ function copy_home_directorys() {
 
 
 function copy_mails() {
-  local mailFiles filename ownerID
+  local mailFile filename ownerID
 
   cd $Old_maildir
 
-  ls | while read mailFiles ; do
-    if is_migratory_user $mail_file ; then
-      cp -a $mail_file /var/spool/mail/
-      find /var/spool/mail/$mail_file -printf "%U:%p\n" \
+  ls | while read mailFile ; do
+    if is_migratory_user $mailFile ; then
+      cp -a $mailFile /var/spool/mail/
+      find /var/spool/mail/$mailFile -printf "%U:%p\n" \
        | while read filename ; do
         ownerID="${filename%%:*}"
         filename="${filename#*:}"
