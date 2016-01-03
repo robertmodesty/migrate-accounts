@@ -178,6 +178,18 @@ function old_home_directory_of_user() {
     | cut_field 6
 }
 
+function old_userID_of() {
+
+  grep_field 1 "$1" "$Old_passwd" \
+    | cut_field 3
+}
+
+function old_groupID_of() {
+
+  grep_field 1 "$1" "$Old_group" \
+    | cut_field 3
+}
+
 function name_of_old_userID() {
 
   grep_field 3 "$1" "$Old_passwd" \
