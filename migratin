@@ -12,7 +12,8 @@ readonly Old_Filesystem="$1"
 #       readonly Old_group
 #       readonly Old_gshadow
 #       readonly Old_maildir
-#       readonly need_cp_mails
+#       readonly if_migrat_Eff_Grp
+#       readonly if_cp_mails
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
@@ -283,7 +284,8 @@ function analysis_args() {
   Old_group="$Old_Filesystem/etc/group"
   Old_gshadow="$Old_Filesystem/etc/gshadow"
   Old_maildir="$Old_Filesystem/var/spool/mail"
-  need_cp_mails="false"
+  if_migrat_Eff_Grp="true"
+  if_cp_mails="false"
 
   shift
 
@@ -309,13 +311,13 @@ function analysis_args() {
         ;;
       "--maildir="*)
         Old_maildir="${1:10}"
-        need_cp_mails="true"
+        if_cp_mails="true"
         ;;
       "--no-eff-grp")
-        readonly Flag_No_Eff_Grp=1
+        if_migrate_Eff_Grp="false"
         ;;
       "-m"|"--copy-mails")
-        need_cp_mails="true"
+        if_cp_mails="true"
         ;;
     esac
     shift
@@ -323,13 +325,13 @@ function analysis_args() {
 
   readonly FirstAccount LastAccount
   readonly Old_passwd Old_shadow Old_group Old_gshadow
-  readonly Old_maildir need_cp_mails
+  readonly Old_maildir if_migrat_Eff_Grp if_cp_mails
 
   test ! -f "$Old_passwd"  && echo "'$Old_passwd' $unfile"  && exit 1
   test ! -f "$Old_shadow"  && echo "'$Old_shadow' $unfile"  && exit 1
   test ! -f "$Old_group"   && echo "'$Old_group' $unfile"   && exit 1
   test ! -f "$Old_gshadow" && echo "'$Old_gshadow' $unfile" && exit 1
-  test ! -d "$Old_maildir" && $need_cp_mails && \
+  test ! -d "$Old_maildir" && $if_cp_mails && \
       echo "'$Old_maildir' $undir" && exit 1
 }
 
@@ -350,8 +352,8 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  test "$Flag_No_Eff_Grp" != "1" \
-    && readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
+  $if_migrate_Eff_Grp && \
+    readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
 
 }
 
@@ -545,14 +547,14 @@ function main() {
 
   buile_accounts
 
-  if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+  if $if_migrate_Eff_Grp ; then
     build_effective_groups
     set_effective_groups
   fi
 
   copy_home_directorys
 
-  $need_cp_mails && copy_mails
+  $if_cp_mails && copy_mails
 
 }
 
