@@ -19,6 +19,7 @@ readonly Old_Filesystem="$1"
 #       readonly Old_passwd_Content
 #       readonly Old_group_Content
 #       readonly MigratoryAccGrpPairs
+#       readonly MigratoryAccTable
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
 #       readonly MigratoryEffectiveGroups
@@ -238,6 +239,16 @@ function get_old_accounts_and_initial_groups() {
   exec 3<&-
 }
 
+function get_migratory_account_table() {
+  local userName
+
+  echo "$MigratoryAccGrpPairs" \
+   | cut_field 1 \
+   | while read userName ; do
+      echo "$userName:$( old_userID_of $userName )::"
+  done
+}
+
 function get_old_accounts() {
 
   echo "$MigratoryAccGrpPairs" \
@@ -359,6 +370,8 @@ function process_readonly_variables() {
     echo Can not find any migratory account!
     exit 1
   fi
+
+  readonly MigratoryAccTable="$( get_migratory_account_table )"
 
   readonly MigratoryAccounts="$( get_old_accounts )"
 
