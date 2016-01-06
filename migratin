@@ -240,12 +240,14 @@ function get_old_accounts_and_initial_groups() {
 }
 
 function get_migratory_account_table() {
-  local userName
+  local pairs userName initGroup
 
   echo "$MigratoryAccGrpPairs" \
-   | cut_field 1 \
-   | while read userName ; do
-      echo "$userName:$( old_userID_of $userName )::"
+   | while read pairs ; do
+      userName="$( cut_field 1 $pairs )"
+      initGroup="$( cut_field 2 $pairs )"
+      echo -n "$userName:$( old_userID_of $userName )::"
+      echo ":$initGroup:$( old_groupID_of $initGroup )::"
   done
 }
 
