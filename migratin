@@ -285,6 +285,30 @@ function get_effective_group_table() {
   done
 }
 
+function read_list_from_file() {
+  local x
+
+  exec 3< "$1"
+
+  while read -u 3 x ; do
+    case "$x" in
+      "users:")
+        while read -u 3 x ; do
+          process_user_data_line "$x" \
+          || break
+        done
+        ;;
+      "groups:")
+        while read -u 3 x ; do
+          process_group_data_line "$x" \
+          || break
+        done
+        ;;
+    esac
+  done
+
+  exec 3<&-
+}
 
 
 
