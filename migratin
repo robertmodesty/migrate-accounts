@@ -285,6 +285,26 @@ function get_effective_group_table() {
   done
 }
 
+function process_user_data_line(){
+  local x="$1"
+  local oldUser newUserNam newUID newGrp
+
+  x="$( echo $x )"
+  test -z "$x" && reture 1
+
+  x="${x%%#*}"
+  x="$( echo $x )"
+  test -z "$x" && reture 0
+
+  oldUser="${x%%:*}"
+  x="${x#*:}"
+  newUserNam="${x%%:*}"
+  x="${x#*:}"
+  newUID="${x%%:*}"
+  newGrp="${x#*:}"
+
+}
+
 function read_list_from_file() {
   local x err filename="$1"
   local -i count=0
