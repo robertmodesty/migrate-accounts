@@ -286,28 +286,39 @@ function get_effective_group_table() {
 }
 
 function read_list_from_file() {
-  local x
+  local x err filename="$1"
+  local -i count=0
 
-  exec 3< "$1"
+  exec 3< "$filename"
 
   while read -u 3 x ; do
     case "$x" in
       "users:")
         while read -u 3 x ; do
-          process_user_data_line "$x" \
-          || break
+          count=count+1
+          process_user_data_line "$x"
+          err="$?"
+          test "$err" != "0" && break
         done
         ;;
       "groups:")
         while read -u 3 x ; do
-          process_group_data_line "$x" \
-          || break
+          count=count+1
+          process_group_data_line "$x"
+          err="$?"
+          test "$err" != "0" && break
         done
         ;;
     esac
+    test  "$err" == "2" && err=fileError && break
   done
 
   exec 3<&-
+
+  if [ "$err" == "fileError" ] ; then
+    echo "Error reading file $filename on line $count:"
+    echo "$x"
+  fi
 }
 
 
