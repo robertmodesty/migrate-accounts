@@ -14,7 +14,9 @@ readonly Old_Filesystem="$1"
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
+#       readonly Old_shadow_Content
 #       readonly Old_group_Content
+#       readonly Old_gshadow_Content
 #       readonly MigratoryAccGrpPairs
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
@@ -309,7 +311,11 @@ function process_readonly_variables() {
 
   readonly Old_passwd_Content="$( sort_old_passwd_file_by_uid )"
 
+  readonly Old_shadow_Content="$( cat $Old_shadow )"
+
   readonly Old_group_Content="$( sort_old_group_file_by_gid )"
+
+  readonly Old_gshadow_Content="$( cat $Old_gshadow )"
 
   readonly MigratoryAccGrpPairs="$( get_old_accounts_and_initial_groups )"
   if [ -z "$MigratoryAccGrpPairs" ] ; then
