@@ -139,7 +139,8 @@ function effective_groups_of_user() {
 
 function get_user_comment() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 5
 }
 
@@ -156,7 +157,8 @@ function get_user_initial_group() {
 
 function get_user_unshadow_password() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 2
 }
 
