@@ -164,7 +164,8 @@ function get_user_unshadow_password() {
 
 function old_home_directory_of_user() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 6
 }
 
