@@ -171,13 +171,15 @@ function old_home_directory_of_user() {
 
 function name_of_old_userID() {
 
-  grep_field 3 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 3 "$1" \
     | cut_field 1
 }
 
 function name_of_old_groupID() {
 
-  grep_field 3 "$1" "$Old_group" \
+  echo "$Old_group_Content" \
+    | grep_field 3 "$1" \
     | cut_field 1
 }
 
