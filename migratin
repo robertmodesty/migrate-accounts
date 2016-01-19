@@ -205,18 +205,18 @@ function sort_old_group_file_by_gid() {
 function get_old_accounts_and_initial_groups() {
   local x y userID groupID
 
-  exec 3< "$Old_passwd"
-  while read -u 3 x ; do
+  echo "$Old_passwd_Content" \
+   | while read x ; do
     userID="$( cut_field 3 "$x" )"
     if [   $userID -ge $FirstAccount \
         -a $userID -le $LastAccount ] ; then
       groupID="$( cut_field 4 "$x" )"
       echo -n "${x%%:*}:"
-      grep_field 3 "$groupID" "$Old_group" \
+      echo "$Old_group_Contant" \
+       | grep_field 3 "$groupID" \
        | cut_field 1
     fi
   done
-  exec 3<&-
 }
 
 function get_old_accounts() {
