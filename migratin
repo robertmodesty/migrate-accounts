@@ -433,7 +433,7 @@ function buile_accounts() {
     password="$( get_user_unshadow_password $user )"
     sed -i "s/^$user:[^:]*/$user:$password/" /etc/passwd
 
-    shadowData="$( grep_field 1 "$user" "$Old_shadow" )"
+    shadowData="$( echo "$Old_shadow_Content" | grep_field 1 "$user" )"
     if [ -n "$shadowData" ] ; then
       sed -i "s/^$user:.*/$shadowData/" /etc/shadow
     fi
