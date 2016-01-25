@@ -11,6 +11,7 @@ readonly Old_Filesystem="$1"
 #       readonly Old_shadow
 #       readonly Old_group
 #       readonly Old_gshadow
+#       readonly Flag_No_Eff_Grp
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
@@ -239,7 +240,7 @@ function get_old_effective_groups() {
   for user in $MigratoryAccounts ; do
     effective_groups_of_user $user
   done \
-   | sort
+   | sort \
    | uniq
 }
 
