@@ -213,7 +213,7 @@ function get_old_accounts_and_initial_groups() {
         -a $userID -le $LastAccount ] ; then
       groupID="$( cut_field 4 "$x" )"
       echo -n "${x%%:*}:"
-      echo "$Old_group_Contant" \
+      echo "$Old_group_Content" \
        | grep_field 3 "$groupID" \
        | cut_field 1
     fi
