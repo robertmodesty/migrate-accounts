@@ -92,7 +92,7 @@ function is_valid_user() {
 
   exec 3< /etc/passwd
   while read -u 3 x ; do
-    if [ "${x#$1:}" != "$1" ] ; then
+    if [ "${x#$1:}" != "$x" ] ; then
       exec 3<&-
       return 0
     fi
@@ -106,7 +106,7 @@ function is_valid_group() {
 
   exec 3< /etc/group
   while read -u 3 x ; do
-    if [ "${x#$1:}" != "$1" ] ; then
+    if [ "${x#$1:}" != "$x" ] ; then
       exec 3<&-
       return 0
     fi
