@@ -3,6 +3,7 @@
 # ******* Under here are list of readonly variables *******
 
 readonly Old_Filesystem="$1"
+readonly Regular_GroupID_Boundray="500"
 
 #   setup in function analysis_args():
 #       readonly FirstAccount
