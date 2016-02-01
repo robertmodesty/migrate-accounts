@@ -348,8 +348,12 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  test "$Flag_No_Eff_Grp" != "1" \
-    && readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
+  if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+    readonly MigratoryEffectiveGroups="$( \
+      get_old_effective_groups \
+       | remove_old_system_groups \
+    )"
+  fi
 
 }
 
