@@ -252,6 +252,14 @@ function get_old_effective_groups() {
    | uniq
 }
 
+function remove_old_system_groups() {
+  local group groupID
+
+  while read group ; do
+    groupID="$( old_groupID_of $group )"
+    test $groupID -ge $Regular_GroupID_Boundray && echo $group
+  done
+}
 
 
 
