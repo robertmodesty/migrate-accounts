@@ -116,7 +116,7 @@ function is_valid_group() {
   return 1
 }
 
-function effective_groups_of_user() {
+function old_effective_groups_of_user() {
   local userName="$1"
   local x effMembrs membr
 
@@ -246,7 +246,7 @@ function get_old_effective_groups() {
   local user
 
   for user in $MigratoryAccounts ; do
-    effective_groups_of_user $user
+    old_effective_groups_of_user $user
   done \
    | sort \
    | uniq
@@ -476,7 +476,7 @@ function set_effective_groups() {
   local user effGroups effGrp
 
   for user in $MigratoryAccounts ; do
-    effGroups="$( effective_groups_of_user $user )"
+    effGroups="$( old_effective_groups_of_user $user )"
     for effGrp in $effGroups ; do
       usermod -a -G $effGrp $user
     done
