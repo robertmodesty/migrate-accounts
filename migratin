@@ -478,7 +478,7 @@ function set_effective_groups() {
   for user in $MigratoryAccounts ; do
     effGroups="$( old_effective_groups_of_user $user )"
     for effGrp in $effGroups ; do
-      usermod -a -G $effGrp $user
+      if is_valid_group $effGrp ; then usermod -a -G $effGrp $user ; fi
     done
   done
 }
