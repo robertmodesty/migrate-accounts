@@ -274,6 +274,36 @@ function remove_old_system_groups() {
 
 
 
+####################
+# functions for migrating passwords
+########################################################################
+
+function passwd_content_after_migration() {
+  local row user password
+
+  exec 5< /etc/passwd
+
+  while read -u 5 row ; do
+    user="${row%%:*}"
+
+    if is_migratory_user $user ; then
+      password="$( get_user_unshadow_password $user )"
+      row="${row#*:}"
+      row="$user:$password:${row#*:}"
+      echo "$row"
+
+    else
+      echo "$row"
+    fi
+
+  done
+
+  exec 5<&-
+}
+
+
+
+
 
 ####################
 # functions of all steps
