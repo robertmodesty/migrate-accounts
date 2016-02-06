@@ -301,6 +301,26 @@ function passwd_content_after_migration() {
   exec 5<&-
 }
 
+function shadow_content_after_migration() {
+  local row user
+
+  exec 5< /etc/shadow
+
+  while read -u 5 row ; do
+    user="${row%%:*}"
+
+    if is_migratory_user $user ; then
+      echo "$Old_shadow_Content" \
+       | grep_field 1 "$user"
+    else
+      echo "$row"
+    fi
+
+  done
+
+  exec 5<&-
+}
+
 
 
 
