@@ -523,6 +523,17 @@ function buile_accounts() {
 }
 
 
+function migrate_passwords() {
+  local temp
+
+  temp="$( passwd_content_after_migration )"
+  echo "$temp" > /etc/passwd
+
+  temp="$( shadow_content_after_migration )"
+  echo "$temp" > /etc/shadow
+}
+
+
 function build_effective_groups() {
   local x
 
