@@ -511,14 +511,6 @@ function buile_accounts() {
     fi
     useradd -m -p 00000000 -c "$comment" -g $initGrp $user
 
-    password="$( get_user_unshadow_password $user )"
-    sed -i "s/^$user:[^:]*/$user:$password/" /etc/passwd
-
-    shadowData="$( echo "$Old_shadow_Content" | grep_field 1 "$user" )"
-    if [ -n "$shadowData" ] ; then
-      sed -i "s/^$user:.*/$shadowData/" /etc/shadow
-    fi
-
   done
 }
 
@@ -596,6 +588,8 @@ function main() {
   check_if_home_directorys_exist
 
   buile_accounts
+
+  migrate_passwords
 
   if [ "$Flag_No_Eff_Grp" != "1" ] ; then
     build_effective_groups
