@@ -549,10 +549,13 @@ function set_effective_groups() {
 
 function copy_home_directorys() {
   local user filename ownerID groupID
+  local oldHome
 
   for user in $MigratoryAccounts ; do
+    oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
+    test "$(echo $oldHome/*)" == "$oldHome/*" && continue
 
-    cp -a $Old_Filesystem/$(old_home_directory_of_user $user)/* /home/$user
+    cp -a $oldHome/* /home/$user
 
     find /home/$user/* -printf "%U:%G:%p\n" \
      | while read filename ; do
