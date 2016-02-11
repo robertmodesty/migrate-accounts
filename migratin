@@ -12,6 +12,7 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly Old_shadow
 #       readonly Old_group
 #       readonly Old_gshadow
+#       readonly LoginShell
 #       readonly Flag_No_Eff_Grp
 
 #   setup in function process_readonly_variables():
@@ -367,6 +368,9 @@ function analysis_args() {
       "--gshadow="*)
         readonly Old_gshadow="${1:10}"
         ;;
+      "--loginshell="*)
+        readonly LoginShell="${1:13}"
+        ;;
       "--no-eff-grp")
         readonly Flag_No_Eff_Grp=1
         ;;
@@ -380,6 +384,7 @@ function analysis_args() {
   test -z "$Old_shadow"   && readonly Old_shadow="$Old_Filesystem/etc/shadow"
   test -z "$Old_group"    && readonly Old_group="$Old_Filesystem/etc/group"
   test -z "$Old_gshadow"  && readonly Old_gshadow="$Old_Filesystem/etc/gshadow"
+  test -z "$LoginShell"   && readonly LoginShell=/bin/bash
 
   test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
   test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
