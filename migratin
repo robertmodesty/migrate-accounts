@@ -514,7 +514,7 @@ function buile_accounts() {
     if ! is_valid_group $initGrp ; then
       groupadd $initGrp
     fi
-    useradd -m -c "$comment" -g $initGrp $user
+    useradd -m -c "$comment" -g $initGrp -s $LoginShell $user
 
   done
 }
