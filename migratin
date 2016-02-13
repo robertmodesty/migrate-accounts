@@ -553,8 +553,7 @@ function set_effective_groups() {
 
 
 function copy_home_directorys() {
-  local user filename ownerID groupID
-  local oldHome
+  local user oldHome filename ownerID groupID owner group
 
   for user in $MigratoryAccounts ; do
     oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
@@ -564,12 +563,16 @@ function copy_home_directorys() {
 
     find /home/$user/* -printf "%U:%G:%p\n" \
      | while read filename ; do
+
       ownerID="${filename%%:*}"
       filename="${filename#*:}"
       groupID="${filename%%:*}"
       filename="${filename#*:}"
-      chown $(name_of_old_userID $ownerID):$(name_of_old_groupID $groupID) \
-              "$filename"
+      owner="$(name_of_old_userID $ownerID)"
+      group="$(name_of_old_groupID $groupID)"
+
+      chown ${owner:-ownerID}:${group:-groupID} "$filename"
+
     done
 
   done
