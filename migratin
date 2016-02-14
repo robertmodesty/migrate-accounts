@@ -457,7 +457,6 @@ function check_account_group_names() {
     echo
     echo $VEffGrps
     echo
-    echo Please correct it before migration.
   fi
 
   if [ -n "$VinitGrps" ] ; then
