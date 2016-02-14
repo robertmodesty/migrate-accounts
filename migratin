@@ -511,9 +511,7 @@ function buile_accounts() {
     comment="$( get_user_comment $user )"
     initGrp="$( get_user_initial_group $user )"
 
-    if ! is_valid_group $initGrp ; then
-      groupadd $initGrp
-    fi
+    is_valid_group $initGrp || groupadd $initGrp
     useradd -m -c "$comment" -g $initGrp -s $LoginShell $user
 
   done
@@ -535,7 +533,7 @@ function build_effective_groups() {
   local x
 
   for x in $MigratoryEffectiveGroups ; do
-    if ! is_valid_group $x ; then groupadd $x ; fi
+    is_valid_group $x || groupadd $x
   done
 }
 
@@ -546,7 +544,7 @@ function set_effective_groups() {
   for user in $MigratoryAccounts ; do
     effGroups="$( old_effective_groups_of_user $user )"
     for effGrp in $effGroups ; do
-      if is_valid_group $effGrp ; then usermod -a -G $effGrp $user ; fi
+      is_valid_group $effGrp && usermod -a -G $effGrp $user
     done
   done
 }
