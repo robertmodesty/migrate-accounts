@@ -587,6 +587,7 @@ function main() {
 
   exit_if_no_root_permission
 
+  echo "Preparing..."
   analysis_args "$@"
 
   process_readonly_variables
@@ -595,15 +596,20 @@ function main() {
 
   check_if_home_directorys_exist
 
+  echo "Building accounts..."
   buile_accounts
 
+  echo "Migrating passwords..."
   migrate_passwords
 
   if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+    echo "Building effective groups..."
     build_effective_groups
+    echo "Setting user's effective groups..."
     set_effective_groups
   fi
 
+  echo "Copying home directorys of users..."
   copy_home_directorys
 
 }
