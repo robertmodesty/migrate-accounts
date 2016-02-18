@@ -570,12 +570,12 @@ function copy_home_directorys() {
 
       if [ -n "$owner" ] && is_valid_user $owner ; then
         if [ -n "$group" ] && is_valid_group $group ; then
-          chown $owner:$group "$filename"
+          chown -h $owner:$group "$filename"
         else
-          chown $owner "$filename"
+          chown -h $owner "$filename"
         fi
       elif [ -n "$group" ] && is_valid_group $group ; then
-        chgrp $group "$filename"
+        chgrp -h $group "$filename"
       fi
 
     done
