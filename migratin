@@ -276,7 +276,7 @@ function remove_old_system_groups() {
 
 
 ####################
-# functions for migrating passwords
+# functions for migrating passwords and data
 ########################################################################
 
 function passwd_content_after_migration() {
@@ -320,6 +320,26 @@ function shadow_content_after_migration() {
   done
 
   exec 5<&-
+}
+
+function userID_changing_table() {
+  local new_name_and_ID row name oldID newID
+
+  new_name_and_ID=" root:0 "
+
+  echo "$Old_passwd_Content" | while read row ; do
+    name="${row%%:*}"
+    row="${row#*:}"
+    row="${row#*:}"
+    oldID="${row%%:*}"
+    row="${new_name_and_ID#* $name:}"
+    if [ "$row" != "$new_name_and_ID" ] ; then
+      newID="${row%% *}"
+      if [ "$oldID" != "$newID" ] ; then
+        echo -n " [$oldID]=\"$newID\""
+      fi
+    fi
+  done
 }
 
 
