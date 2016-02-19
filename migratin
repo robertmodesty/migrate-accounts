@@ -325,7 +325,10 @@ function shadow_content_after_migration() {
 function userID_changing_table() {
   local new_name_and_ID row name oldID newID
 
-  new_name_and_ID=" root:0 "
+  new_name_and_ID="$( \
+   cat /etc/passwd \
+    | cut -d ':' -f 1,3 )"
+  new_name_and_ID=" $( echo $new_name_and_ID ) "
 
   echo "$Old_passwd_Content" | while read row ; do
     name="${row%%:*}"
