@@ -345,6 +345,29 @@ function userID_changing_table() {
   done
 }
 
+function groupID_changing_table() {
+  local new_name_and_ID row name oldID newID
+
+  new_name_and_ID="$( \
+   cat /etc/group \
+    | cut -d ':' -f 1,3 )"
+  new_name_and_ID=" $( echo $new_name_and_ID ) "
+
+  echo "$Old_group_Content" | while read row ; do
+    name="${row%%:*}"
+    row="${row#*:}"
+    row="${row#*:}"
+    oldID="${row%%:*}"
+    row="${new_name_and_ID#* $name:}"
+    if [ "$row" != "$new_name_and_ID" ] ; then
+      newID="${row%% *}"
+      if [ "$oldID" != "$newID" ] ; then
+        echo -n " [$oldID]=\"$newID\""
+      fi
+    fi
+  done
+}
+
 
 
 
