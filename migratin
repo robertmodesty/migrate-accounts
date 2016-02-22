@@ -596,7 +596,11 @@ function set_effective_groups() {
 
 
 function copy_home_directorys() {
-  local user oldHome filename ownerID groupID owner group
+  local user oldHome filename
+  local old_ownerID old_groupID new_ownerID new_groupID
+
+  eval local -a newID_of_old_userID_=( $( userID_changing_table ) )
+  eval local -a newID_of_old_groupID_=( $( groupID_changing_table ) )
 
   for user in $MigratoryAccounts ; do
     oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
@@ -607,21 +611,21 @@ function copy_home_directorys() {
     find /home/$user/* -printf "%U:%G:%p\n" \
      | while read filename ; do
 
-      ownerID="${filename%%:*}"
+      old_ownerID="${filename%%:*}"
       filename="${filename#*:}"
-      groupID="${filename%%:*}"
+      old_groupID="${filename%%:*}"
       filename="${filename#*:}"
-      owner="$(name_of_old_userID $ownerID)"
-      group="$(name_of_old_groupID $groupID)"
+      new_ownerID="${newID_of_old_userID_[$old_ownerID]}"
+      new_groupID="${newID_of_old_groupID_[$old_groupID]}"
 
-      if [ -n "$owner" ] && is_valid_user $owner ; then
-        if [ -n "$group" ] && is_valid_group $group ; then
-          chown -h $owner:$group "$filename"
+      if [ -n "$new_ownerID" ] ; then
+        if [ -n "$new_groupID" ] ; then
+          chown -h $new_ownerID:$new_groupID "$filename"
         else
-          chown -h $owner "$filename"
+          chown -h $new_ownerID "$filename"
         fi
-      elif [ -n "$group" ] && is_valid_group $group ; then
-        chgrp -h $group "$filename"
+      elif [ -n "$new_groupID" ] ; then
+        chgrp -h $new_groupID "$filename"
       fi
 
     done
