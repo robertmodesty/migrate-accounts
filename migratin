@@ -596,15 +596,25 @@ function set_effective_groups() {
 
 
 function copy_home_directorys() {
-  local user oldHome filename
+  local user oldHome filename when_empty_home=false
   local old_ownerID old_groupID new_ownerID new_groupID
 
   eval local -a newID_of_old_userID_=( $( userID_changing_table ) )
   eval local -a newID_of_old_groupID_=( $( groupID_changing_table ) )
 
+  echo -n "copy:  "
   for user in $MigratoryAccounts ; do
     oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
-    test "$(echo $oldHome/*)" == "$oldHome/*" && continue
+    if [ "$(echo $oldHome/*)" == "$oldHome/*" ] ; then
+      ! $when_empty_home \
+        && echo -en "\nThese users have empty home directorys:  " \
+        && when_empty_home=true
+      echo -n "$user "
+      continue
+    else
+      $when_empty_home && echo -ne "\ncopy:  " && when_empty_home=false
+    fi
+    echo -n "$user "
 
     cp -a $oldHome/* /home/$user
 
@@ -631,6 +641,7 @@ function copy_home_directorys() {
     done
 
   done
+  echo
 }
 
 
