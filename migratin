@@ -368,6 +368,34 @@ function groupID_changing_table() {
   done
 }
 
+function migrate_ownership() {
+
+  ##### Require Arrays:  newID_of_old_userID_[], newID_of_old_groupID_[]
+
+  local filename old_ownerID old_groupID new_ownerID new_groupID
+
+  find $1/* -printf "%U:%G:%p\n" \
+   | while read filename ; do
+
+    old_ownerID="${filename%%:*}"
+    filename="${filename#*:}"
+    old_groupID="${filename%%:*}"
+    filename="${filename#*:}"
+    new_ownerID="${newID_of_old_userID_[$old_ownerID]}"
+    new_groupID="${newID_of_old_groupID_[$old_groupID]}"
+
+    if [ -n "$new_ownerID" ] ; then
+      if [ -n "$new_groupID" ] ; then
+        chown -h $new_ownerID:$new_groupID "$filename"
+      else
+        chown -h $new_ownerID "$filename"
+      fi
+    elif [ -n "$new_groupID" ] ; then
+      chgrp -h $new_groupID "$filename"
+    fi
+  done
+}
+
 
 
 
@@ -596,8 +624,7 @@ function set_effective_groups() {
 
 
 function copy_home_directorys() {
-  local user oldHome filename when_empty_home=false
-  local old_ownerID old_groupID new_ownerID new_groupID
+  local user oldHome when_empty_home=false
 
   eval local -a newID_of_old_userID_=( $( userID_changing_table ) )
   eval local -a newID_of_old_groupID_=( $( groupID_changing_table ) )
@@ -618,27 +645,7 @@ function copy_home_directorys() {
 
     cp -a $oldHome/* /home/$user
 
-    find /home/$user/* -printf "%U:%G:%p\n" \
-     | while read filename ; do
-
-      old_ownerID="${filename%%:*}"
-      filename="${filename#*:}"
-      old_groupID="${filename%%:*}"
-      filename="${filename#*:}"
-      new_ownerID="${newID_of_old_userID_[$old_ownerID]}"
-      new_groupID="${newID_of_old_groupID_[$old_groupID]}"
-
-      if [ -n "$new_ownerID" ] ; then
-        if [ -n "$new_groupID" ] ; then
-          chown -h $new_ownerID:$new_groupID "$filename"
-        else
-          chown -h $new_ownerID "$filename"
-        fi
-      elif [ -n "$new_groupID" ] ; then
-        chgrp -h $new_groupID "$filename"
-      fi
-
-    done
+    migrate_ownership "/home/$user"
 
   done
   echo
