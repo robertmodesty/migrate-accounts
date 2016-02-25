@@ -4,4 +4,12 @@ Accounts Migration Utility
 
   To migrate old accounts into the host just operating, mount the filesystem of old server on a mount point, then use this command:
 
-    migratin MOUNT_POINT_OF_OLD_FILESYSTEM [start=1ST_USER_ID]
+    ./migratin MOUNT_POINT_OF_OLD_FILESYSTEM
+
+SYNOPSIS
+
+        ./migratin MOUNT_POINT_OF_OLD_FILESYSTEM [--start=1ST_USER_ID]
+            [--end=LAST_USER_ID] [--passwd=OLD_passwd_FILE]
+            [--shadow=OLD_shadow_FILE] [--group=OLD_group_FILE]
+            [--gshadow=OLD_gshadow_FILE] [--loginshell=LOGIN_SHELL]
+            [--no-eff-grp]
