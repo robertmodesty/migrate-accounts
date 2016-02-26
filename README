@@ -13,3 +13,37 @@ SYNOPSIS
             [--shadow=OLD_shadow_FILE] [--group=OLD_group_FILE]
             [--gshadow=OLD_gshadow_FILE] [--loginshell=LOGIN_SHELL]
             [--no-eff-grp]
+
+ARGUMENTS
+
+        MOUNT_POINT_OF_OLD_FILESYSTEM
+          Specify the path to the old data directory, it contains the old
+          root directory. this argument always be required.
+
+        --start=1ST_USER_ID
+          Specify which user ID to start migrating.
+
+        --end=LAST_USER_ID
+          Specify the last user ID been migrated.
+
+        --passwd=OLD_passwd_FILE
+          Specify the "passwd" file instead of assuming it in "etc/"
+          under the mount point of old filesystem.
+
+        --shadow=OLD_shadow_FILE
+          Specify the "shadow" file instead of assuming it in "etc/"
+          under the mount point of old filesystem.
+
+        --group=OLD_group_FILE
+          Specify the "group" file instead of assuming it in "etc/"
+          under the mount point of old filesystem.
+
+        --gshadow=OLD_gshadow_FILE
+          Specify the "gshadow" file instead of assuming it in "etc/"
+          under the mount point of old filesystem.
+
+        --loginshell=LOGIN_SHELL
+          Specify the login shell for all migratory users.
+
+        --no-eff-grp
+          Do not migrate and set effective groups of migratory users.
