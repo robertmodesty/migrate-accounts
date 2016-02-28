@@ -20,6 +20,7 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly Old_shadow_Content
 #       readonly Old_group_Content
 #       readonly Old_gshadow_Content
+#       readonly Name_of_Old_GroupID_[]
 #       readonly MigratoryAccGrpPairs
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
@@ -481,6 +482,8 @@ function process_readonly_variables() {
   readonly Old_group_Content="$( sort_old_group_file_by_gid )"
 
   readonly Old_gshadow_Content="$( cat $Old_gshadow )"
+
+  eval readonly Name_of_Old_GroupID_=( $( old_groupID_to_name_table ) )
 
   readonly MigratoryAccGrpPairs="$( get_old_accounts_and_initial_groups )"
   if [ -z "$MigratoryAccGrpPairs" ] ; then
