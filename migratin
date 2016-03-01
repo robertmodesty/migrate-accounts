@@ -257,13 +257,24 @@ function get_old_initial_groups() {
 }
 
 function get_old_effective_groups() {
-  local user
+  local row name users user=""
 
-  for user in $MigratoryAccounts ; do
-    old_effective_groups_of_user $user
-  done \
-   | sort \
-   | uniq
+  echo "$Old_group_Content" \
+   | while read row ; do
+
+    name="${row%%:*}"
+    users="${row##*:}"
+
+    until [ "$users" == "$user" ] ; do
+      user="${users%%,*}"
+      users="${users#*,}"
+      if is_migratory_user $user ; then
+        echo "$name"
+        break
+      fi
+    done
+
+  done
 }
 
 function remove_old_system_groups() {
