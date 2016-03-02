@@ -162,8 +162,8 @@ function get_user_initial_group() {
   local x
 
   for x in $MigratoryAccGrpPairs ; do
-    if [ "$1" == "${x#*:}" ] ; then
-      echo "${x%:*}"
+    if [ "$1" == "${x%:*}" ] ; then
+      echo "${x#*:}"
       break
     fi
   done
