@@ -257,7 +257,7 @@ function get_old_initial_groups() {
 }
 
 function get_old_effective_groups() {
-  local row name users user=""
+  local row name users user
 
   echo "$Old_group_Content" \
    | while read row ; do
@@ -265,6 +265,7 @@ function get_old_effective_groups() {
     name="${row%%:*}"
     users="${row##*:}"
 
+    user=""
     until [ "$users" == "$user" ] ; do
       user="${users%%,*}"
       users="${users#*,}"
