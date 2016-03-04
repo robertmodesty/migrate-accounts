@@ -515,7 +515,7 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local Vaccs VInitGrps VEffGrps x notClean
+  local Vaccs VInitGrps VEffGrps grouplessUsers x notClean
 
   Vaccs="$(
     for x in $MigratoryAccounts ; do
@@ -534,6 +534,13 @@ function check_account_group_names() {
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
+
+  x="$(
+    echo "$MigratoryAccGrpPairs" \
+    | grep ":$" \
+    | sed "s/:$//"
+  )"
+  grouplessUsers="$( echo $x )"
 
   if [ -n "$Vaccs" ] ; then
     echo These users had been already added:
@@ -555,6 +562,15 @@ function check_account_group_names() {
     echo
     echo $VinitGrps
     echo
+  fi
+
+  if [ -n "$grouplessUsers" ] ; then
+    echo These users do not have a named initial group:
+    echo
+    echo $grouplessUsers
+    echo
+    echo Please correct it!!!
+    notClean="1"
   fi
 
   if [ -n "$VEffGrps" -o -n "$VinitGrps" ] && [ "1" != "$notClean" ] ; then
