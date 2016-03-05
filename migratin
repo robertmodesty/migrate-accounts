@@ -613,6 +613,7 @@ function buile_accounts() {
   local user comment initGrp password shadowData
 
   for user in $MigratoryAccounts ; do
+    echo -ne "\E[80D$user\E[K"
 
     comment="$( get_user_comment $user )"
     initGrp="$( get_user_initial_group $user )"
@@ -621,6 +622,7 @@ function buile_accounts() {
     useradd -m -c "$comment" -g $initGrp -s $LoginShell $user
 
   done
+  echo
 }
 
 
