@@ -338,22 +338,39 @@ function shadow_content_after_migration() {
 }
 
 function userID_changing_table() {
-  local oldIDfile newIDfile
+  local oldIDfile newIDfile sameIDfile
+  local changedOldIDfile changedNewIDfile
 
   oldIDfile="$(mktemp)"
   newIDfile="$(mktemp)"
+  sameIDfile="$(mktemp)"
+  changedOldIDfile="$(mktemp)"
+  changedNewIDfile="$(mktemp)"
 
-  echo "$Old_passwd_Content" \
-   | cut -d ':' -f 1,3 \
-   | sort > $oldIDfile
+  cut -d ':' -f 1,3 $Old_passwd > $oldIDfile
 
-  cut -d ':' -f 1,3 /etc/passwd \
-   | sort > $newIDfile
+  cut -d ':' -f 1,3 /etc/passwd > $newIDfile
 
-  join -t ':' $oldIDfile $newIDfile \
+  cat $oldIDfile $newIDfile \
+   | sort \
+   | uniq -d \
+   > $sameIDfile
+
+  cat $sameIDfile $oldIDfile \
+   | sort \
+   | uniq -u \
+   > $changedOldIDfile
+
+  cat $sameIDfile $newIDfile \
+   | sort \
+   | uniq -u \
+   > $changedNewIDfile
+
+  join -t ':' $changedOldIDfile $changedNewIDfile \
    | sed 's/[^:]*:\([^:]*\):\(.*\)/[\1]="\2"/'
 
-  rm $oldIDfile $newIDfile
+  rm $oldIDfile $newIDfile $sameIDfile
+  rm $changedOldIDfile $changedNewIDfile
 }
 
 function groupID_changing_table() {
