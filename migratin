@@ -376,75 +376,13 @@ function generate_ID_changing_table() {
 }
 
 function userID_changing_table() {
-  local oldIDfile newIDfile sameIDfile
-  local changedOldIDfile changedNewIDfile
 
-  oldIDfile="$(mktemp)"
-  newIDfile="$(mktemp)"
-  sameIDfile="$(mktemp)"
-  changedOldIDfile="$(mktemp)"
-  changedNewIDfile="$(mktemp)"
-
-  cut -d ':' -f 1,3 $Old_passwd > $oldIDfile
-
-  cut -d ':' -f 1,3 /etc/passwd > $newIDfile
-
-  cat $oldIDfile $newIDfile \
-   | sort \
-   | uniq -d \
-   > $sameIDfile
-
-  cat $sameIDfile $oldIDfile \
-   | sort \
-   | uniq -u \
-   > $changedOldIDfile
-
-  cat $sameIDfile $newIDfile \
-   | sort \
-   | uniq -u \
-   > $changedNewIDfile
-
-  join -t ':' $changedOldIDfile $changedNewIDfile \
-   | sed 's/[^:]*:\([^:]*\):\(.*\)/[\1]="\2"/'
-
-  rm $oldIDfile $newIDfile $sameIDfile
-  rm $changedOldIDfile $changedNewIDfile
+  generate_ID_changing_table "$Old_passwd" "/etc/passwd"
 }
 
 function groupID_changing_table() {
-  local oldIDfile newIDfile sameIDfile
-  local changedOldIDfile changedNewIDfile
 
-  oldIDfile="$(mktemp)"
-  newIDfile="$(mktemp)"
-  sameIDfile="$(mktemp)"
-  changedOldIDfile="$(mktemp)"
-  changedNewIDfile="$(mktemp)"
-
-  cut -d ':' -f 1,3 $Old_group > $oldIDfile
-
-  cut -d ':' -f 1,3 /etc/group > $newIDfile
-
-  cat $oldIDfile $newIDfile \
-   | sort \
-   | uniq -d \
-   > $sameIDfile
-
-  cat $sameIDfile $oldIDfile \
-   | sort \
-   | uniq -u \
-   > $changedOldIDfile
-
-  cat $sameIDfile $newIDfile \
-   | sort \
-   | uniq -u \
-   > $changedNewIDfile
-
-  join -t ':' $changedOldIDfile $changedNewIDfile \
-   | sed 's/[^:]*:\([^:]*\):\(.*\)/[\1]="\2"/'
-
-  rm $oldIDfile $newIDfile $sameIDfile
-  rm $changedOldIDfile $changedNewIDfile
+  generate_ID_changing_table "$Old_group" "/etc/group"
 }
 
 
