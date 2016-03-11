@@ -613,13 +613,14 @@ function check_if_home_directorys_exist() {
 
 
 function buile_accounts() {
-  local user comment initGrp password shadowData
+  local accGrpPair user comment initGrp password shadowData
 
-  for user in $MigratoryAccounts ; do
+  for accGrpPair in $MigratoryAccGrpPairs ; do
+    user="${accGrpPair%:*}"
     echo -ne "\E[80D$user\E[K"
 
     comment="$( get_user_comment $user )"
-    initGrp="$( get_user_initial_group $user )"
+    initGrp="${accGrpPair#*:}"
 
     is_valid_group $initGrp || groupadd $initGrp
     useradd -m -c "$comment" -g $initGrp -s $LoginShell $user
