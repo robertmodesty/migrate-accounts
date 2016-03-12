@@ -438,45 +438,49 @@ function analysis_args() {
     exit 1
   fi
 
+  FirstAccount=500
+  LastAccount=65533
+  Old_passwd="$Old_Filesystem/etc/passwd"
+  Old_shadow="$Old_Filesystem/etc/shadow"
+  Old_group="$Old_Filesystem/etc/group"
+  Old_gshadow="$Old_Filesystem/etc/gshadow"
+  LoginShell="/bin/bash"
+
   shift
 
   while [ -n "$1" ] ; do
     case "$1" in
       "--start="*)
-        readonly FirstAccount="${1:8}"
+        FirstAccount="${1:8}"
         ;;
       "--end="*)
-        readonly LastAccount="${1:6}"
+        LastAccount="${1:6}"
         ;;
       "--passwd="*)
-        readonly Old_passwd="${1:9}"
+        Old_passwd="${1:9}"
         ;;
       "--shadow="*)
-        readonly Old_shadow="${1:9}"
+        Old_shadow="${1:9}"
         ;;
       "--group="*)
-        readonly Old_group="${1:8}"
+        Old_group="${1:8}"
         ;;
       "--gshadow="*)
-        readonly Old_gshadow="${1:10}"
+        Old_gshadow="${1:10}"
         ;;
       "--loginshell="*)
-        readonly LoginShell="${1:13}"
+        LoginShell="${1:13}"
         ;;
       "--no-eff-grp")
-        readonly Flag_No_Eff_Grp=1
+        Flag_No_Eff_Grp=1
         ;;
     esac
     shift
   done
 
-  test -z "$FirstAccount" && readonly FirstAccount=500
-  test -z "$LastAccount"  && readonly LastAccount=65533
-  test -z "$Old_passwd"   && readonly Old_passwd="$Old_Filesystem/etc/passwd"
-  test -z "$Old_shadow"   && readonly Old_shadow="$Old_Filesystem/etc/shadow"
-  test -z "$Old_group"    && readonly Old_group="$Old_Filesystem/etc/group"
-  test -z "$Old_gshadow"  && readonly Old_gshadow="$Old_Filesystem/etc/gshadow"
-  test -z "$LoginShell"   && readonly LoginShell=/bin/bash
+  readonly FirstAccount LastAccount
+  readonly Old_passwd Old_shadow Old_group Old_gshadow
+  readonly LoginShell Flag_No_Eff_Grp
 
   test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
   test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
