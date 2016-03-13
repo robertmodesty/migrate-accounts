@@ -13,7 +13,7 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly Old_group
 #       readonly Old_gshadow
 #       readonly LoginShell
-#       readonly Flag_No_Eff_Grp
+#       readonly If_Migrate_Eff_Grp
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
@@ -445,6 +445,7 @@ function analysis_args() {
   Old_group="$Old_Filesystem/etc/group"
   Old_gshadow="$Old_Filesystem/etc/gshadow"
   LoginShell="/bin/bash"
+  If_Migrate_Eff_Grp="true"
 
   shift
 
@@ -472,7 +473,7 @@ function analysis_args() {
         LoginShell="${1:13}"
         ;;
       "--no-eff-grp")
-        Flag_No_Eff_Grp=1
+        If_Migrate_Eff_Grp="false"
         ;;
     esac
     shift
@@ -480,7 +481,7 @@ function analysis_args() {
 
   readonly FirstAccount LastAccount
   readonly Old_passwd Old_shadow Old_group Old_gshadow
-  readonly LoginShell Flag_No_Eff_Grp
+  readonly LoginShell If_Migrate_Eff_Grp
 
   test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
   test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
@@ -511,12 +512,11 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+  $If_Migrate_Eff_Grp && \
     readonly MigratoryEffectiveGroups="$( \
       get_old_effective_groups \
        | remove_old_system_groups \
     )"
-  fi
 
 }
 
@@ -721,7 +721,7 @@ function main() {
   echo "Migrating passwords..."
   migrate_passwords
 
-  if [ "$Flag_No_Eff_Grp" != "1" ] ; then
+  if $If_Migrate_Eff_Grp ; then
     echo "Building effective groups..."
     build_effective_groups
     echo "Setting user's effective groups..."
