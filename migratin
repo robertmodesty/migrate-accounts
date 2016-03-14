@@ -437,6 +437,7 @@ function analysis_args() {
     echo "'$Old_Filesystem' is not a directiory." 1>&2
     exit 1
   fi
+  shift
 
   FirstAccount=500
   LastAccount=65533
@@ -446,8 +447,6 @@ function analysis_args() {
   Old_gshadow="$Old_Filesystem/etc/gshadow"
   LoginShell="/bin/bash"
   If_Migrate_Eff_Grp="true"
-
-  shift
 
   while [ -n "$1" ] ; do
     case "$1" in
