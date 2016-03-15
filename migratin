@@ -388,28 +388,28 @@ function groupID_changing_table() {
 
 function migrate_ownership() {
 
-  ##### Require Arrays:  newID_of_old_userID_[], newID_of_old_groupID_[]
+  ##### Require Arrays:  newID_of_Old_UserID_[], newID_of_Old_GroupID_[]
 
-  local filename old_ownerID old_groupID new_ownerID new_groupID
+  local filename oldOwnerID oldGroupID newOwnerID newGroupID
 
   find $1/* -printf "%U:%G:%p\n" \
    | while read filename ; do
 
-    old_ownerID="${filename%%:*}"
+    oldOwnerID="${filename%%:*}"
     filename="${filename#*:}"
-    old_groupID="${filename%%:*}"
+    oldGroupID="${filename%%:*}"
     filename="${filename#*:}"
-    new_ownerID="${newID_of_old_userID_[$old_ownerID]}"
-    new_groupID="${newID_of_old_groupID_[$old_groupID]}"
+    newOwnerID="${newID_of_Old_UserID_[$oldOwnerID]}"
+    newGroupID="${newID_of_Old_GroupID_[$oldGroupID]}"
 
-    if [ -n "$new_ownerID" ] ; then
-      if [ -n "$new_groupID" ] ; then
-        chown -h $new_ownerID:$new_groupID "$filename"
+    if [ -n "$newOwnerID" ] ; then
+      if [ -n "$newGroupID" ] ; then
+        chown -h $newOwnerID:$newGroupID "$filename"
       else
-        chown -h $new_ownerID "$filename"
+        chown -h $newOwnerID "$filename"
       fi
-    elif [ -n "$new_groupID" ] ; then
-      chgrp -h $new_groupID "$filename"
+    elif [ -n "$newGroupID" ] ; then
+      chgrp -h $newGroupID "$filename"
     fi
   done
 }
@@ -634,13 +634,13 @@ function buile_accounts() {
 
 
 function migrate_passwords() {
-  local temp
+  local content
 
-  temp="$( passwd_content_after_migration )"
-  echo "$temp" > /etc/passwd
+  content="$( passwd_content_after_migration )"
+  echo "$content" > /etc/passwd
 
-  temp="$( shadow_content_after_migration )"
-  echo "$temp" > /etc/shadow
+  content="$( shadow_content_after_migration )"
+  echo "$content" > /etc/shadow
 }
 
 
@@ -666,22 +666,22 @@ function set_effective_groups() {
 
 
 function copy_home_directorys() {
-  local user oldHome when_empty_home=false
+  local user oldHome when_Empty_Home=false
 
-  eval local -a newID_of_old_userID_=( $( userID_changing_table ) )
-  eval local -a newID_of_old_groupID_=( $( groupID_changing_table ) )
+  eval local -a newID_of_Old_UserID_=( $( userID_changing_table ) )
+  eval local -a newID_of_Old_GroupID_=( $( groupID_changing_table ) )
 
   echo -n "copy:  "
   for user in $MigratoryAccounts ; do
     oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
     if [ "$(echo $oldHome/*)" == "$oldHome/*" ] ; then
-      ! $when_empty_home \
+      ! $when_Empty_Home \
         && echo -en "\nThese users have empty home directorys:  " \
-        && when_empty_home=true
+        && when_Empty_Home=true
       echo -n "$user "
       continue
     else
-      $when_empty_home && echo -ne "\ncopy:  " && when_empty_home=false
+      $when_Empty_Home && echo -ne "\ncopy:  " && when_Empty_Home=false
     fi
     echo -n "$user "
 
