@@ -37,41 +37,41 @@ readonly Regular_GroupID_Boundray="500"
 
 function cut_field() {
   local -i step field=$1
-  local x
+  local row
 
   if [ -n "$2" ] ; then
-    x="$2"
+    row="$2"
     for (( step=1 ; step<field ; step++ )) ; do
-      x=${x#*:}
+      row=${row#*:}
     done
-    echo "${x%%:*}"
+    echo "${row%%:*}"
 
   else
-    while read x ; do
+    while read row ; do
       for (( step=1 ; step<field ; step++ )) ; do
-        x=${x#*:}
+        row=${row#*:}
       done
-      echo "${x%%:*}"
+      echo "${row%%:*}"
     done
   fi
 }
 
 function grep_field() {
   local -i step field=$1
-  local inFile=0 pattern="$2" retrnVal=1 y
+  local inFile=0 pattern="$2" retrnVal=1 row fields
 
   if [ -n "$3" ] ; then
     inFile=9
     exec 9< "$3"
   fi
 
-  while read -u $inFile x ; do
-    y="$x"
+  while read -u $inFile row ; do
+    fields="$row"
     for (( step=1 ; step<field ; step++ )) ; do
-      y=${y#*:}
+      fields=${fields#*:}
     done
-    if [ "$pattern" == "${y%%:*}" ] ; then
-      echo "$x"
+    if [ "$pattern" == "${fields%%:*}" ] ; then
+      echo "$row"
       retrnVal=0
     fi
   done
@@ -101,11 +101,11 @@ function is_migratory_user() {
 }
 
 function is_valid_user() {
-  local x
+  local row
 
   exec 3< /etc/passwd
-  while read -u 3 x ; do
-    if [ "${x#$1:}" != "$x" ] ; then
+  while read -u 3 row ; do
+    if [ "${row#$1:}" != "$row" ] ; then
       exec 3<&-
       return 0
     fi
@@ -115,11 +115,11 @@ function is_valid_user() {
 }
 
 function is_valid_group() {
-  local x
+  local row
 
   exec 3< /etc/group
-  while read -u 3 x ; do
-    if [ "${x#$1:}" != "$x" ] ; then
+  while read -u 3 row ; do
+    if [ "${row#$1:}" != "$row" ] ; then
       exec 3<&-
       return 0
     fi
@@ -130,18 +130,18 @@ function is_valid_group() {
 
 function old_effective_groups_of_user() {
   local userName="$1"
-  local x effMembrs membr
+  local row effMembrs membr
 
   echo "$Old_group_Content" \
-   | while read x ; do
+   | while read row ; do
 
-    effMembrs="${x##*:},"
+    effMembrs="${row##*:},"
     membr="${effMembrs%%,*}"
     effMembrs="${effMembrs#*,}"
 
     while [ -n "$membr" ] ; do
       if [ "$membr" == "$userName" ] ; then
-        echo "${x%%:*}"
+        echo "${row%%:*}"
         break
       fi
       membr="${effMembrs%%,*}"
@@ -229,15 +229,15 @@ function old_groupID_to_name_table() {
 }
 
 function get_old_accounts_and_initial_groups() {
-  local x y userID groupID
+  local row userID groupID
 
   echo "$Old_passwd_Content" \
-   | while read x ; do
-    userID="$( cut_field 3 "$x" )"
+   | while read row ; do
+    userID="$( cut_field 3 "$row" )"
     if [   $userID -ge $FirstAccount \
         -a $userID -le $LastAccount ] ; then
-      groupID="$( cut_field 4 "$x" )"
-      echo "${x%%:*}:${Name_of_Old_GroupID_[$groupID]}"
+      groupID="$( cut_field 4 "$row" )"
+      echo "${row%%:*}:${Name_of_Old_GroupID_[$groupID]}"
     fi
   done
 }
@@ -645,10 +645,10 @@ function migrate_passwords() {
 
 
 function build_effective_groups() {
-  local x
+  local group
 
-  for x in $MigratoryEffectiveGroups ; do
-    is_valid_group $x || groupadd $x
+  for group in $MigratoryEffectiveGroups ; do
+    is_valid_group $group || groupadd $group
   done
 }
 
