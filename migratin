@@ -563,10 +563,10 @@ function check_account_group_names() {
     echo
   fi
 
-  if [ -n "$VinitGrps" ] ; then
+  if [ -n "$VInitGrps" ] ; then
     echo These initial groups had been already builded:
     echo
-    echo $VinitGrps
+    echo $VInitGrps
     echo
   fi
 
@@ -579,7 +579,7 @@ function check_account_group_names() {
     notClean="1"
   fi
 
-  if [ -n "$VEffGrps" -o -n "$VinitGrps" ] && [ "1" != "$notClean" ] ; then
+  if [ -n "$VEffGrps" -o -n "$VInitGrps" ] && [ "1" != "$notClean" ] ; then
     read -p "Will this be fine? (Y/n) " x
     x="${x^^}"
 
