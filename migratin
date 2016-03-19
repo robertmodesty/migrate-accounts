@@ -87,13 +87,6 @@ function grep_field() {
 # General Functions:  Account and Group Operation
 ########################################################################
 
-function is_old_initial_group() {
-  local oldInitGrps=" $( echo $MigratoryInitialGroups ) "
-
-  test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
-  return $?
-}
-
 function is_migratory_user() {
 
   echo "$MigratoryAccounts" \
