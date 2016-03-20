@@ -151,17 +151,6 @@ function get_user_comment() {
     | cut_field 5
 }
 
-function get_user_initial_group() {
-  local x
-
-  for x in $MigratoryAccGrpPairs ; do
-    if [ "$1" == "${x%:*}" ] ; then
-      echo "${x#*:}"
-      break
-    fi
-  done
-}
-
 function get_user_unshadow_password() {
 
   echo "$Old_passwd_Content" \
