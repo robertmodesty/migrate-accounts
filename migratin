@@ -172,13 +172,6 @@ function old_groupID_of() {
     | cut_field 3
 }
 
-function name_of_old_userID() {
-
-  echo "$Old_passwd_Content" \
-    | grep_field 3 "$1" \
-    | cut_field 1
-}
-
 
 
 
