@@ -1,5 +1,14 @@
 #!/bin/bash
 
+######################################################################
+#                                                                    #
+#    Accounts Migration Utility  Version 0.1      License: GPL 2     #
+#                                                                    #
+#                           By Robert D. Wei (Freedman) 2016 Mar.    #
+#                                                                    #
+######################################################################
+
+
 # ******* Under here are list of readonly variables *******
 
 readonly Old_Filesystem="$1"
