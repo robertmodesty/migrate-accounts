@@ -1,8 +1,18 @@
 #!/bin/bash
 
+######################################################################
+#                                                                    #
+#    Accounts Migration Utility  Version 0.1      License: GPL 2     #
+#                                                                    #
+#                           By Robert D. Wei (Freedman) 2016 Mar.    #
+#                                                                    #
+######################################################################
+
+
 # ******* Under here are list of readonly variables *******
 
 readonly Old_Filesystem="$1"
+readonly Regular_GroupID_Boundray="500"
 NewLine="$( echo -e "0\n0" )"
 readonly NewLine="${NewLine//0/}"
 
@@ -16,12 +26,16 @@ readonly NewLine="${NewLine//0/}"
 #       readonly Old_group
 #       readonly Old_gshadow
 #       readonly Old_maildir
-#       readonly if_migrate_Eff_Grp
+#       readonly LoginShell
+#       readonly If_Migrate_Eff_Grp
 #       readonly if_cp_mails
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
+#       readonly Old_shadow_Content
 #       readonly Old_group_Content
+#       readonly Old_gshadow_Content
+#       readonly Name_of_Old_GroupID_[]
 #       readonly MigratoryAccGrpPairs
 #       readonly MigratoryAccTable
 #       readonly MigratoryAccounts
@@ -40,41 +54,41 @@ readonly NewLine="${NewLine//0/}"
 
 function cut_field() {
   local -i step field=$1
-  local x
+  local row
 
   if [ -n "$2" ] ; then
-    x="$2"
+    row="$2"
     for (( step=1 ; step<field ; step++ )) ; do
-      x=${x#*:}
+      row=${row#*:}
     done
-    echo "${x%%:*}"
+    echo "${row%%:*}"
 
   else
-    while read x ; do
+    while read row ; do
       for (( step=1 ; step<field ; step++ )) ; do
-        x=${x#*:}
+        row=${row#*:}
       done
-      echo "${x%%:*}"
+      echo "${row%%:*}"
     done
   fi
 }
 
 function grep_field() {
   local -i step field=$1
-  local inFile=0 pattern="$2" retrnVal=1 y
+  local inFile=0 pattern="$2" retrnVal=1 row fields
 
   if [ -n "$3" ] ; then
     inFile=9
     exec 9< "$3"
   fi
 
-  while read -u $inFile x ; do
-    y="$x"
+  while read -u $inFile row ; do
+    fields="$row"
     for (( step=1 ; step<field ; step++ )) ; do
-      y=${y#*:}
+      fields=${fields#*:}
     done
-    if [ "$pattern" == "${y%%:*}" ] ; then
-      echo "$x"
+    if [ "$pattern" == "${fields%%:*}" ] ; then
+      echo "$row"
       retrnVal=0
     fi
   done
@@ -90,11 +104,10 @@ function grep_field() {
 # General Functions:  Account and Group Operation
 ########################################################################
 
-function is_old_initial_group() {
-  local oldInitGrps=" $( echo $MigratoryInitialGroups ) "
+function is_migratory_user() {
 
-  test "${oldInitGrps}" != "${oldInitGrps#* $1 }"
-  return $?
+  echo "$MigratoryAccounts" \
+   | grep_field 1 $1 > /dev/null
 }
 
 function is_migratory_user() {
@@ -104,11 +117,11 @@ function is_migratory_user() {
 }
 
 function is_valid_user() {
-  local x
+  local row
 
   exec 3< /etc/passwd
-  while read -u 3 x ; do
-    if [ "${x#$1:}" != "$1" ] ; then
+  while read -u 3 row ; do
+    if [ "${row#$1:}" != "$row" ] ; then
       exec 3<&-
       return 0
     fi
@@ -118,11 +131,11 @@ function is_valid_user() {
 }
 
 function is_valid_group() {
-  local x
+  local row
 
   exec 3< /etc/group
-  while read -u 3 x ; do
-    if [ "${x#$1:}" != "$1" ] ; then
+  while read -u 3 row ; do
+    if [ "${row#$1:}" != "$row" ] ; then
       exec 3<&-
       return 0
     fi
@@ -131,20 +144,20 @@ function is_valid_group() {
   return 1
 }
 
-function effective_groups_of_user() {
+function old_effective_groups_of_user() {
   local userName="$1"
-  local x effMembrs membr
+  local row effMembrs membr
 
-  exec 9< "$Old_group"
-  while read -u 9 x ; do
+  echo "$Old_group_Content" \
+   | while read row ; do
 
-    effMembrs="${x##*:},"
+    effMembrs="${row##*:},"
     membr="${effMembrs%%,*}"
     effMembrs="${effMembrs#*,}"
 
     while [ -n "$membr" ] ; do
       if [ "$membr" == "$userName" ] ; then
-        echo "${x%%:*}"
+        echo "${row%%:*}"
         break
       fi
       membr="${effMembrs%%,*}"
@@ -152,35 +165,26 @@ function effective_groups_of_user() {
     done
 
   done
-  exec 9<&-
 }
 
 function get_user_comment() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 5
-}
-
-function get_user_initial_group() {
-  local x
-
-  for x in $MigratoryAccGrpPairs ; do
-    if [ "$1" == "${x#*:}" ] ; then
-      echo "${x%:*}"
-      break
-    fi
-  done
 }
 
 function get_user_unshadow_password() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 2
 }
 
 function old_home_directory_of_user() {
 
-  grep_field 1 "$1" "$Old_passwd" \
+  echo "$Old_passwd_Content" \
+    | grep_field 1 "$1" \
     | cut_field 6
 }
 
@@ -192,20 +196,9 @@ function old_userID_of() {
 
 function old_groupID_of() {
 
-  grep_field 1 "$1" "$Old_group" \
+  echo "$Old_group_Content" \
+    | grep_field 1 "$1" \
     | cut_field 3
-}
-
-function name_of_old_userID() {
-
-  grep_field 3 "$1" "$Old_passwd" \
-    | cut_field 1
-}
-
-function name_of_old_groupID() {
-
-  grep_field 3 "$1" "$Old_group" \
-    | cut_field 1
 }
 
 
@@ -227,21 +220,23 @@ function sort_old_group_file_by_gid() {
   sort -t : -k 3 -n "$Old_group"
 }
 
-function get_old_accounts_and_initial_groups() {
-  local x y userID groupID
+function old_groupID_to_name_table() {
+    echo "$Old_group_Content" \
+     | sed 's/^\([^:]*\):[^:]*:\([^:]*\):.*/[\2]="\1"/'
+}
 
-  exec 3< "$Old_passwd"
-  while read -u 3 x ; do
-    userID="$( cut_field 3 "$x" )"
+function get_old_accounts_and_initial_groups() {
+  local row userID groupID
+
+  echo "$Old_passwd_Content" \
+   | while read row ; do
+    userID="$( cut_field 3 "$row" )"
     if [   $userID -ge $FirstAccount \
         -a $userID -le $LastAccount ] ; then
-      groupID="$( cut_field 4 "$x" )"
-      echo -n "${x%%:*}:"
-      grep_field 3 "$groupID" "$Old_group" \
-       | cut_field 1
+      groupID="$( cut_field 4 "$row" )"
+      echo "${row%%:*}:${Name_of_Old_GroupID_[$groupID]}"
     fi
   done
-  exec 3<&-
 }
 
 function get_migratory_account_table() {
@@ -271,13 +266,25 @@ function get_old_initial_groups() {
 }
 
 function get_old_effective_groups() {
-  local user
+  local row name users user
 
-  for user in $MigratoryAccounts ; do
-    effective_groups_of_user $user
-  done \
-   | sort
-   | uniq
+  echo "$Old_group_Content" \
+   | while read row ; do
+
+    name="${row%%:*}"
+    users="${row##*:}"
+
+    user=""
+    until [ "$users" == "$user" ] ; do
+      user="${users%%,*}"
+      users="${users#*,}"
+      if is_migratory_user $user ; then
+        echo "$name"
+        break
+      fi
+    done
+
+  done
 }
 
 function get_effective_group_table() {
@@ -379,6 +386,143 @@ function read_list_from_file() {
   fi
 }
 
+function remove_old_system_groups() {
+  local group groupID
+
+  while read group ; do
+    groupID="$( old_groupID_of $group )"
+    test $groupID -ge $Regular_GroupID_Boundray && echo $group
+  done
+}
+
+
+
+
+####################
+# functions for migrating passwords and data
+########################################################################
+
+function passwd_content_after_migration() {
+  local row user password
+
+  exec 5< /etc/passwd
+
+  while read -u 5 row ; do
+    user="${row%%:*}"
+
+    if is_migratory_user $user ; then
+      password="$( get_user_unshadow_password $user )"
+      row="${row#*:}"
+      row="$user:$password:${row#*:}"
+      echo "$row"
+
+    else
+      echo "$row"
+    fi
+
+  done
+
+  exec 5<&-
+}
+
+function shadow_content_after_migration() {
+  local row user
+
+  exec 5< /etc/shadow
+
+  while read -u 5 row ; do
+    user="${row%%:*}"
+
+    if is_migratory_user $user ; then
+      echo "$Old_shadow_Content" \
+       | grep_field 1 "$user"
+    else
+      echo "$row"
+    fi
+
+  done
+
+  exec 5<&-
+}
+
+
+function generate_ID_changing_table() {
+  local oldTableFile="$1" newTableFile="$2"
+  local oldIDfile newIDfile sameIDfile
+  local changedOldIDfile changedNewIDfile
+
+  oldIDfile="$(mktemp)"
+  newIDfile="$(mktemp)"
+  sameIDfile="$(mktemp)"
+  changedOldIDfile="$(mktemp)"
+  changedNewIDfile="$(mktemp)"
+
+  cut -d ':' -f 1,3 $oldTableFile > $oldIDfile
+
+  cut -d ':' -f 1,3 $newTableFile > $newIDfile
+
+  cat $oldIDfile $newIDfile \
+   | sort \
+   | uniq -d \
+   > $sameIDfile
+
+  cat $sameIDfile $oldIDfile \
+   | sort \
+   | uniq -u \
+   > $changedOldIDfile
+
+  cat $sameIDfile $newIDfile \
+   | sort \
+   | uniq -u \
+   > $changedNewIDfile
+
+  join -t ':' $changedOldIDfile $changedNewIDfile \
+   | sed 's/[^:]*:\([^:]*\):\(.*\)/[\1]="\2"/'
+
+  rm $oldIDfile $newIDfile $sameIDfile
+  rm $changedOldIDfile $changedNewIDfile
+}
+
+function userID_changing_table() {
+
+  generate_ID_changing_table "$Old_passwd" "/etc/passwd"
+}
+
+function groupID_changing_table() {
+
+  generate_ID_changing_table "$Old_group" "/etc/group"
+}
+
+
+function migrate_ownership() {
+
+  ##### Require Arrays:  newID_of_Old_UserID_[], newID_of_Old_GroupID_[]
+
+  local filename oldOwnerID oldGroupID newOwnerID newGroupID
+
+  find $1/* -printf "%U:%G:%p\n" \
+   | while read filename ; do
+
+    oldOwnerID="${filename%%:*}"
+    filename="${filename#*:}"
+    oldGroupID="${filename%%:*}"
+    filename="${filename#*:}"
+    newOwnerID="${newID_of_Old_UserID_[$oldOwnerID]}"
+    newGroupID="${newID_of_Old_GroupID_[$oldGroupID]}"
+
+    if [ -n "$newOwnerID" ] ; then
+      if [ -n "$newGroupID" ] ; then
+        chown -h $newOwnerID:$newGroupID "$filename"
+      else
+        chown -h $newOwnerID "$filename"
+      fi
+    elif [ -n "$newGroupID" ] ; then
+      chgrp -h $newGroupID "$filename"
+    fi
+  done
+}
+
+
 
 
 
@@ -403,6 +547,7 @@ function analysis_args() {
     echo "'$Old_Filesystem' is not a directiory." 1>&2
     exit 1
   fi
+  shift
 
   FirstAccount=500
   LastAccount=65533
@@ -411,10 +556,9 @@ function analysis_args() {
   Old_group="$Old_Filesystem/etc/group"
   Old_gshadow="$Old_Filesystem/etc/gshadow"
   Old_maildir="$Old_Filesystem/var/spool/mail"
-  if_migrate_Eff_Grp="true"
+  LoginShell="/bin/bash"
+  If_Migrate_Eff_Grp="true"
   if_cp_mails="false"
-
-  shift
 
   while [ -n "$1" ] ; do
     case "$1" in
@@ -440,8 +584,11 @@ function analysis_args() {
         Old_maildir="${1:10}"
         if_cp_mails="true"
         ;;
+      "--loginshell="*)
+        LoginShell="${1:13}"
+        ;;
       "--no-eff-grp")
-        if_migrate_Eff_Grp="false"
+        If_Migrate_Eff_Grp="false"
         ;;
       "-m"|"--copy-mails")
         if_cp_mails="true"
@@ -455,7 +602,7 @@ function analysis_args() {
 
   readonly FirstAccount LastAccount Listfile
   readonly Old_passwd Old_shadow Old_group Old_gshadow
-  readonly Old_maildir if_migrate_Eff_Grp if_cp_mails
+  readonly Old_maildir LoginShell If_Migrate_Eff_Grp if_cp_mails
 
   test ! -f "$Old_passwd"  && echo "'$Old_passwd' $unfile"  && exit 1
   test ! -f "$Old_shadow"  && echo "'$Old_shadow' $unfile"  && exit 1
@@ -470,7 +617,13 @@ function process_readonly_variables() {
 
   readonly Old_passwd_Content="$( sort_old_passwd_file_by_uid )"
 
+  readonly Old_shadow_Content="$( cat $Old_shadow )"
+
   readonly Old_group_Content="$( sort_old_group_file_by_gid )"
+
+  readonly Old_gshadow_Content="$( cat $Old_gshadow )"
+
+  eval readonly Name_of_Old_GroupID_=( $( old_groupID_to_name_table ) )
 
   readonly MigratoryAccGrpPairs="$( get_old_accounts_and_initial_groups )"
   if [ -z "$MigratoryAccGrpPairs" ] ; then
@@ -484,9 +637,12 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  if $if_migrate_Eff_Grp ; then
+  if $If_Migrate_Eff_Grp ; then
 
-    readonly MigratoryEffectiveGroups="$( get_old_effective_groups )"
+    readonly MigratoryEffectiveGroups="$( \
+      get_old_effective_groups \
+       | remove_old_system_groups \
+    )"
 
     readonly MigratoryEffGrpTable="$( get_effective_group_table )"
 
@@ -495,7 +651,7 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local Vaccs VInitGrps VEffGrps x notClean
+  local Vaccs VInitGrps VEffGrps grouplessUsers x notClean
 
   Vaccs="$(
     for x in $MigratoryAccounts ; do
@@ -515,6 +671,13 @@ function check_account_group_names() {
     done
   )"
 
+  x="$(
+    echo "$MigratoryAccGrpPairs" \
+    | grep ":$" \
+    | sed "s/:$//"
+  )"
+  grouplessUsers="$( echo $x )"
+
   if [ -n "$Vaccs" ] ; then
     echo These users had been already added:
     echo
@@ -528,22 +691,30 @@ function check_account_group_names() {
     echo
     echo $VEffGrps
     echo
-    echo Please correct it before migration.
   fi
 
-  if [ -n "$VinitGrps" ] ; then
+  if [ -n "$VInitGrps" ] ; then
     echo These initial groups had been already builded:
     echo
-    echo $VinitGrps
+    echo $VInitGrps
     echo
   fi
 
-  if [ -n "$VEffGrps" -o -n "$VinitGrps" ] && [ "1" != "$notClean" ] ; then
+  if [ -n "$grouplessUsers" ] ; then
+    echo These users do not have a named initial group:
+    echo
+    echo $grouplessUsers
+    echo
+    echo Please correct it!!!
+    notClean="1"
+  fi
+
+  if [ -n "$VEffGrps" -o -n "$VInitGrps" ] && [ "1" != "$notClean" ] ; then
     read -p "Will this be fine? (Y/n) " x
     x="${x^^}"
 
     while [ "Y" != "${x:=Y}" -a "N" != "$x" ] ; do
-      read -p "Please insert 'Y' or 'N': " x
+      read -p "Please insert 'Y' or 'N' (Y/n):  " x
       x="${x^^}"
     done
 
@@ -575,35 +746,39 @@ function check_if_home_directorys_exist() {
 
 
 function buile_accounts() {
-  local user comment initGrp password shadowData
+  local accGrpPair user comment initGrp password shadowData
 
-  for user in $MigratoryAccounts ; do
+  for accGrpPair in $MigratoryAccGrpPairs ; do
+    user="${accGrpPair%:*}"
+    echo -ne "\E[80D$user\E[K"
 
     comment="$( get_user_comment $user )"
-    initGrp="$( get_user_initial_group $user )"
+    initGrp="${accGrpPair#*:}"
 
-    if ! is_valid_group $initGrp ; then
-      groupadd $initGrp
-    fi
-    useradd -m -p 00000000 -c "$comment" -g $initGrp $user
-
-    password="$( get_user_unshadow_password $user )"
-    sed -i "s/^$user:[^:]*/$user:$password/" /etc/passwd
-
-    shadowData="$( grep_field 1 "$user" "$Old_shadow" )"
-    if [ -n "$shadowData" ] ; then
-      sed -i "s/^$user:.*/$shadowData/" /etc/shadow
-    fi
+    is_valid_group $initGrp || groupadd $initGrp
+    useradd -m -c "$comment" -g $initGrp -s $LoginShell $user
 
   done
+  echo
+}
+
+
+function migrate_passwords() {
+  local content
+
+  content="$( passwd_content_after_migration )"
+  echo "$content" > /etc/passwd
+
+  content="$( shadow_content_after_migration )"
+  echo "$content" > /etc/shadow
 }
 
 
 function build_effective_groups() {
-  local x
+  local group
 
-  for x in $MigratoryEffectiveGroups ; do
-    if ! is_valid_group $x ; then groupadd $x ; fi
+  for group in $MigratoryEffectiveGroups ; do
+    is_valid_group $group || groupadd $group
   done
 }
 
@@ -612,32 +787,40 @@ function set_effective_groups() {
   local user effGroups effGrp
 
   for user in $MigratoryAccounts ; do
-    effGroups="$( effective_groups_of_user $user )"
+    effGroups="$( old_effective_groups_of_user $user )"
     for effGrp in $effGroups ; do
-      usermod -a -G $effGrp $user
+      is_valid_group $effGrp && usermod -a -G $effGrp $user
     done
   done
 }
 
 
 function copy_home_directorys() {
-  local user filename ownerID groupID
+  local user oldHome when_Empty_Home=false
 
+  eval local -a newID_of_Old_UserID_=( $( userID_changing_table ) )
+  eval local -a newID_of_Old_GroupID_=( $( groupID_changing_table ) )
+
+  echo -n "copy:  "
   for user in $MigratoryAccounts ; do
+    oldHome="$Old_Filesystem/$(old_home_directory_of_user $user)"
+    if [ "$(echo $oldHome/*)" == "$oldHome/*" ] ; then
+      ! $when_Empty_Home \
+        && echo -en "\nThese users have empty home directorys:  " \
+        && when_Empty_Home=true
+      echo -n "$user "
+      continue
+    else
+      $when_Empty_Home && echo -ne "\ncopy:  " && when_Empty_Home=false
+    fi
+    echo -n "$user "
 
-    cp -a $Old_Filesystem/$(old_home_directory_of_user $user)/* /home/$user
+    cp -a $oldHome/* /home/$user
 
-    find /home/$user/* -printf "%U:%G:%p\n" \
-     | while read filename ; do
-      ownerID="${filename%%:*}"
-      filename="${filename#*:}"
-      groupID="${filename%%:*}"
-      filename="${filename#*:}"
-      chown $(name_of_old_userID $ownerID):$(name_of_old_groupID $groupID) \
-              "$filename"
-    done
+    migrate_ownership "/home/$user"
 
   done
+  echo
 }
 
 
@@ -673,6 +856,7 @@ function main() {
 
   exit_if_no_root_permission
 
+  echo "Preparing..."
   analysis_args "$@"
 
   process_readonly_variables
@@ -681,13 +865,20 @@ function main() {
 
   check_if_home_directorys_exist
 
+  echo "Building accounts..."
   buile_accounts
 
-  if $if_migrate_Eff_Grp ; then
+  echo "Migrating passwords..."
+  migrate_passwords
+
+  if $If_Migrate_Eff_Grp ; then
+    echo "Building effective groups..."
     build_effective_groups
+    echo "Setting user's effective groups..."
     set_effective_groups
   fi
 
+  echo "Copying home directorys of users..."
   copy_home_directorys
 
   $if_cp_mails && copy_mails
