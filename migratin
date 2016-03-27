@@ -35,6 +35,7 @@ readonly NewLine="${NewLine//0/}"
 #       readonly Old_shadow_Content
 #       readonly Old_group_Content
 #       readonly Old_gshadow_Content
+#       readonly Name_of_Old_UserID_[]
 #       readonly Name_of_Old_GroupID_[]
 #       readonly MigratoryAccGrpPairs
 #       readonly MigratoryAccTable
@@ -627,6 +628,8 @@ function process_readonly_variables() {
   readonly Old_group_Content="$( sort_old_group_file_by_gid )"
 
   readonly Old_gshadow_Content="$( cat $Old_gshadow )"
+
+  eval readonly Name_of_Old_UserID_=( $( old_userID_to_name_table ) )
 
   eval readonly Name_of_Old_GroupID_=( $( old_groupID_to_name_table ) )
 
