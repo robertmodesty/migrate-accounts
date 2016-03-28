@@ -319,7 +319,7 @@ function process_user_data_line(){
   newUID="${x%%:*}"
   newGrp="${x#*:}"
 
-  tmp="$( name_of_old_userID $oldUser )"
+  tmp="${Name_of_Old_UserID_[$oldUser]}"
   test -n "$tmp" && oldUser="$tmp"
 
   test -z "$newUserNam" && newUserNam="$oldUser"
@@ -844,7 +844,7 @@ function copy_mails() {
        | while read filename ; do
         ownerID="${filename%%:*}"
         filename="${filename#*:}"
-        chown $(name_of_old_userID $ownerID):mail "$filename"
+        chown ${Name_of_Old_UserID_[$ownerID]}:mail "$filename"
       done
     fi
   done
