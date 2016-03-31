@@ -326,30 +326,6 @@ function process_user_data_line(){
   MigratoryUserListFromFile+="$oldUser:$newUserNam:$newUID:$newGrp$NewLine"
 }
 
-function process_group_data_line(){
-  local x="$1" tmp
-  local oldGrp newGrpNam newGID
-
-  x="$( echo $x )"
-  test -z "$x" && reture 1
-
-  x="${x%%#*}"
-  x="$( echo $x )"
-  test -z "$x" && reture 0
-
-  oldGrp="${x%%:*}"
-  x="${x#*:}"
-  newGrpNam="${x%%:*}"
-  newGID="${x#*:}"
-
-  tmp="$( name_of_old_groupID $oldUser )"
-  test -n "$tmp" && oldGrp="$tmp"
-
-  test -z "$newGrpNam" && newGrpNam="$oldGrp"
-
-  MigratoryGroupListFromFile+="$oldGrp:$newGrpNam:$newGID$NewLine"
-}
-
 function read_list_from_file() {
   local x err filename="$1"
   local -i count=0
