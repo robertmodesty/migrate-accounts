@@ -13,9 +13,6 @@
 
 readonly Old_Filesystem="$1"
 readonly Regular_GroupID_Boundray="500"
-NewLine="$( echo -e "0\n0" )"
-readonly NewLine="${NewLine//0/}"
-
 
 #   setup in function analysis_args():
 #       readonly FirstAccount
@@ -293,37 +290,6 @@ function get_effective_group_table() {
   for effGroup in $MigratoryEffectiveGroups ; do
     echo "$effGroup:$( old_groupID_of $effGroup )::"
   done
-}
-
-function process_user_data_line(){
-  local x="$1" tmp
-  local oldUser newUserNam newUID newGrp
-
-  x="$( echo $x )"
-  test -z "$x" && reture 1
-
-  x="${x%%#*}"
-  x="$( echo $x )"
-  test -z "$x" && reture 0
-
-  oldUser="${x%%:*}"
-  x="${x#*:}"
-  newUserNam="${x%%:*}"
-  x="${x#*:}"
-  newUID="${x%%:*}"
-  newGrp="${x#*:}"
-
-  tmp="${Name_of_Old_UserID_[$oldUser]}"
-  test -n "$tmp" && oldUser="$tmp"
-
-  test -z "$newUserNam" && newUserNam="$oldUser"
-
-  if [-z "$newGrp" ] ; then
-    tmp="$( grep_field 1 $oldUser | cut_field 4 )"
-    newGrp="$( name_of_old_groupID $tmp )"
-  fi
-
-  MigratoryUserListFromFile+="$oldUser:$newUserNam:$newUID:$newGrp$NewLine"
 }
 
 function read_list_from_file() {
