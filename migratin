@@ -17,7 +17,6 @@ readonly Regular_GroupID_Boundray="500"
 #   setup in function analysis_args():
 #       readonly FirstAccount
 #       readonly LastAccount
-#       readonly ListFile
 #       readonly Old_passwd
 #       readonly Old_shadow
 #       readonly Old_group
@@ -292,42 +291,6 @@ function get_effective_group_table() {
   done
 }
 
-function read_list_from_file() {
-  local x err filename="$1"
-  local -i count=0
-
-  exec 3< "$filename"
-
-  while read -u 3 x ; do
-    case "$x" in
-      "users:")
-        while read -u 3 x ; do
-          count=count+1
-          process_user_data_line "$x"
-          err="$?"
-          test "$err" != "0" && break
-        done
-        ;;
-      "groups:")
-        while read -u 3 x ; do
-          count=count+1
-          process_group_data_line "$x"
-          err="$?"
-          test "$err" != "0" && break
-        done
-        ;;
-    esac
-    test  "$err" == "2" && err=fileError && break
-  done
-
-  exec 3<&-
-
-  if [ "$err" == "fileError" ] ; then
-    echo "Error reading file $filename on line $count:"
-    echo "$x"
-  fi
-}
-
 function remove_old_system_groups() {
   local group groupID
 
@@ -535,14 +498,11 @@ function analysis_args() {
       "-m"|"--copy-mails")
         If_Copy_Mails="true"
         ;;
-      "--listfile="*)
-        ListFile="${1:11}"
-        ;;
     esac
     shift
   done
 
-  readonly FirstAccount LastAccount Listfile
+  readonly FirstAccount LastAccount
   readonly Old_passwd Old_shadow Old_group Old_gshadow
   readonly Old_maildir LoginShell If_Migrate_Eff_Grp If_Copy_Mails
 
