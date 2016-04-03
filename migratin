@@ -38,7 +38,6 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
 #       readonly MigratoryEffectiveGroups
-#       readonly MigratoryEffGrpTable
 
 
 
@@ -280,14 +279,6 @@ function get_old_effective_groups() {
       fi
     done
 
-  done
-}
-
-function get_effective_group_table() {
-  local effGroup
-
-  for effGroup in $MigratoryEffectiveGroups ; do
-    echo "$effGroup:$( old_groupID_of $effGroup )::"
   done
 }
 
@@ -541,16 +532,12 @@ function process_readonly_variables() {
 
   readonly MigratoryInitialGroups="$( get_old_initial_groups )"
 
-  if $If_Migrate_Eff_Grp ; then
-
+  $If_Migrate_Eff_Grp && \
     readonly MigratoryEffectiveGroups="$( \
       get_old_effective_groups \
        | remove_old_system_groups \
     )"
 
-    readonly MigratoryEffGrpTable="$( get_effective_group_table )"
-
-  fi
 }
 
 
