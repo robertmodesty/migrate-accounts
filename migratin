@@ -34,7 +34,6 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly Name_of_Old_UserID_[]
 #       readonly Name_of_Old_GroupID_[]
 #       readonly MigratoryAccGrpPairs
-#       readonly MigratoryAccTable
 #       readonly MigratoryAccounts
 #       readonly MigratoryInitialGroups
 #       readonly MigratoryEffectiveGroups
@@ -231,18 +230,6 @@ function get_old_accounts_and_initial_groups() {
       groupID="$( cut_field 4 "$row" )"
       echo "${row%%:*}:${Name_of_Old_GroupID_[$groupID]}"
     fi
-  done
-}
-
-function get_migratory_account_table() {
-  local pairs userName initGroup
-
-  echo "$MigratoryAccGrpPairs" \
-   | while read pairs ; do
-      userName="$( cut_field 1 $pairs )"
-      initGroup="$( cut_field 2 $pairs )"
-      echo -n "$userName:$( old_userID_of $userName )::"
-      echo ":$initGroup:$( old_groupID_of $initGroup )::"
   done
 }
 
@@ -525,8 +512,6 @@ function process_readonly_variables() {
     echo Can not find any migratory account!
     exit 1
   fi
-
-  readonly MigratoryAccTable="$( get_migratory_account_table )"
 
   readonly MigratoryAccounts="$( get_old_accounts )"
 
