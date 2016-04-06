@@ -751,7 +751,7 @@ function main() {
   echo "Copying home directorys of users..."
   copy_home_directorys
 
-  $If_Copy_Mails && copy_mails
+  $If_Copy_Mails && ( echo "Copying mails..." ; copy_mails )
 
 }
 
