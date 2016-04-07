@@ -695,19 +695,14 @@ function copy_home_directorys() {
 
 
 function copy_mails() {
-  local mailFile filename ownerID
+  local mailFile
 
   cd $Old_maildir
 
   ls | while read mailFile ; do
     if is_migratory_user $mailFile ; then
       cp -a $mailFile /var/spool/mail/
-      find /var/spool/mail/$mailFile -printf "%U:%p\n" \
-       | while read filename ; do
-        ownerID="${filename%%:*}"
-        filename="${filename#*:}"
-        chown ${Name_of_Old_UserID_[$ownerID]}:mail "$filename"
-      done
+      chown $mailFile:mail /var/spool/mail/$mailFile
     fi
   done
 
