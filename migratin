@@ -701,8 +701,12 @@ function copy_mails() {
 
   ls | while read mailFile ; do
     if is_migratory_user $mailFile ; then
-      cp -a $mailFile /var/spool/mail/
-      chown $mailFile:mail /var/spool/mail/$mailFile
+      if [ -e /var/spool/mail/$mailFile ] ; then
+        cat $mailFile > /var/spool/mail/$mailFile
+      else
+        cp -a $mailFile /var/spool/mail/
+        chown $mailFile:mail /var/spool/mail/$mailFile
+      fi
     fi
   done
 
