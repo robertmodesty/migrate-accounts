@@ -202,11 +202,6 @@ function sort_old_group_file_by_gid() {
   sort -t : -k 3 -n "$Old_group"
 }
 
-function old_userID_to_name_table() {
-    echo "$Old_passwd_Content" \
-     | sed 's/^\([^:]*\):[^:]*:\([^:]*\):.*/[\2]="\1"/'
-}
-
 function old_groupID_to_name_table() {
     echo "$Old_group_Content" \
      | sed 's/^\([^:]*\):[^:]*:\([^:]*\):.*/[\2]="\1"/'
