@@ -702,7 +702,7 @@ function copy_mails() {
     fi
   done
 
-  cd -
+  cd - > /dev/null
 }
 
 
