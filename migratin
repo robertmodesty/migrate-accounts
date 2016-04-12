@@ -21,8 +21,10 @@ readonly Regular_GroupID_Boundray="500"
 #       readonly Old_shadow
 #       readonly Old_group
 #       readonly Old_gshadow
+#       readonly Old_maildir
 #       readonly LoginShell
 #       readonly If_Migrate_Eff_Grp
+#       readonly If_Copy_Mails
 
 #   setup in function process_readonly_variables():
 #       readonly Old_passwd_Content
@@ -409,6 +411,8 @@ function exit_if_no_root_permission() {
 
 
 function analysis_args() {
+  local unfile='is not a file.'
+  local undir='is not a directiry.'
 
   if [   ! -d "$Old_Filesystem" ] ; then
     echo "'$Old_Filesystem' is not a directiory." 1>&2
@@ -422,8 +426,10 @@ function analysis_args() {
   Old_shadow="$Old_Filesystem/etc/shadow"
   Old_group="$Old_Filesystem/etc/group"
   Old_gshadow="$Old_Filesystem/etc/gshadow"
+  Old_maildir="$Old_Filesystem/var/spool/mail"
   LoginShell="/bin/bash"
   If_Migrate_Eff_Grp="true"
+  If_Copy_Mails="false"
 
   while [ -n "$1" ] ; do
     case "$1" in
@@ -445,11 +451,18 @@ function analysis_args() {
       "--gshadow="*)
         Old_gshadow="${1:10}"
         ;;
+      "--maildir="*)
+        Old_maildir="${1:10}"
+        If_Copy_Mails="true"
+        ;;
       "--loginshell="*)
         LoginShell="${1:13}"
         ;;
       "--no-eff-grp")
         If_Migrate_Eff_Grp="false"
+        ;;
+      "-m"|"--copy-mails")
+        If_Copy_Mails="true"
         ;;
     esac
     shift
@@ -457,12 +470,14 @@ function analysis_args() {
 
   readonly FirstAccount LastAccount
   readonly Old_passwd Old_shadow Old_group Old_gshadow
-  readonly LoginShell If_Migrate_Eff_Grp
+  readonly Old_maildir LoginShell If_Migrate_Eff_Grp If_Copy_Mails
 
-  test ! -f "$Old_passwd"  && echo "'$Old_passwd' is not a file."  && exit 1
-  test ! -f "$Old_shadow"  && echo "'$Old_shadow' is not a file."  && exit 1
-  test ! -f "$Old_group"   && echo "'$Old_group' is not a file."   && exit 1
-  test ! -f "$Old_gshadow" && echo "'$Old_gshadow' is not a file." && exit 1
+  test ! -f "$Old_passwd"  && echo "'$Old_passwd' $unfile"  && exit 1
+  test ! -f "$Old_shadow"  && echo "'$Old_shadow' $unfile"  && exit 1
+  test ! -f "$Old_group"   && echo "'$Old_group' $unfile"   && exit 1
+  test ! -f "$Old_gshadow" && echo "'$Old_gshadow' $unfile" && exit 1
+  test ! -d "$Old_maildir" && $If_Copy_Mails && \
+      echo "'$Old_maildir' $undir" && exit 1
 }
 
 
@@ -671,6 +686,26 @@ function copy_home_directorys() {
 }
 
 
+function copy_mails() {
+  local mailFile
+
+  cd $Old_maildir
+
+  ls | while read mailFile ; do
+    if is_migratory_user $mailFile ; then
+      if [ -e /var/spool/mail/$mailFile ] ; then
+        cat $mailFile > /var/spool/mail/$mailFile
+      else
+        cp -a $mailFile /var/spool/mail/
+        chown $mailFile:mail /var/spool/mail/$mailFile
+      fi
+    fi
+  done
+
+  cd - > /dev/null
+}
+
+
 
 
 
@@ -706,6 +741,8 @@ function main() {
 
   echo "Copying home directorys of users..."
   copy_home_directorys
+
+  $If_Copy_Mails && ( echo "Copying mails..." ; copy_mails )
 
 }
 
