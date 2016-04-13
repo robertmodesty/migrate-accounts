@@ -607,7 +607,7 @@ function check_if_home_directorys_exist() {
 }
 
 
-function buile_accounts() {
+function build_accounts() {
   local accGrpPair user comment initGrp password shadowData
 
   for accGrpPair in $MigratoryAccGrpPairs ; do
@@ -727,7 +727,7 @@ function main() {
   check_if_home_directorys_exist
 
   echo "Building accounts..."
-  buile_accounts
+  build_accounts
 
   echo "Migrating passwords..."
   migrate_passwords
