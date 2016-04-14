@@ -47,3 +47,10 @@ ARGUMENTS
 
         --no-eff-grp
           Do not migrate and set effective groups of migratory users.
+
+        --maildir=Old_mail_Directory
+          Specify the "mail" directory instead of assuming it in "var/spool/"
+          under the mount point of old filesystem.
+
+        -m, --copy-mails
+          Copy mails of all migratory accounts.
