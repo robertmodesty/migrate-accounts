@@ -513,7 +513,8 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local Vaccs VInitGrps VEffGrps grouplessUsers x notClean
+  local Vaccs VInitGrps VEffGrps grouplessUsers x
+  local grpExist=false dataError=false
 
   Vaccs="$(
     for x in $MigratoryAccounts ; do
@@ -545,7 +546,7 @@ function check_account_group_names() {
     echo
     echo $Vaccs
     echo
-    notClean="1"
+    dataError=true
   fi
 
   if [ -n "$VEffGrps" ] ; then
@@ -553,6 +554,7 @@ function check_account_group_names() {
     echo
     echo $VEffGrps
     echo
+    grpExist=true
   fi
 
   if [ -n "$VInitGrps" ] ; then
@@ -560,6 +562,7 @@ function check_account_group_names() {
     echo
     echo $VInitGrps
     echo
+    grpExist=true
   fi
 
   if [ -n "$grouplessUsers" ] ; then
@@ -568,10 +571,10 @@ function check_account_group_names() {
     echo $grouplessUsers
     echo
     echo Please correct it!!!
-    notClean="1"
+    dataError=true
   fi
 
-  if [ -n "$VEffGrps" -o -n "$VInitGrps" ] && [ "1" != "$notClean" ] ; then
+  if $grpExist && ! $dataError ; then
     read -p "Will this be fine? (Y/n) " x
     x="${x^^}"
 
@@ -580,10 +583,10 @@ function check_account_group_names() {
       x="${x^^}"
     done
 
-    test "N" == "$x" && notClean="1"
+    test "N" == "$x" && dataError=true
   fi
 
-  test "1" == "$notClean" && exit 1
+  if $dataError ; then exit 1 ; fi
 }
 
 
