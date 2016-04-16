@@ -269,6 +269,35 @@ function remove_old_system_groups() {
 
 
 
+
+####################
+# functions checking accounts and groups
+########################################################################
+
+function if_some_migratory_accounts_valid() {
+  local Vaccs
+  local tmpFile="$(mktemp)"
+
+  cut -d ':' -f 1 /etc/passwd > $tmpFile
+  echo "$MigratoryAccounts" >> $tmpFile
+  Vaccs="$( sort $tmpFile | uniq -d )"
+
+  rm $tmpFile
+
+  if [ -n "$Vaccs" ] ; then
+    echo These users had been already added:
+    echo
+    echo $Vaccs
+    echo
+  else
+    return 1
+  fi
+}
+
+
+
+
+
 ####################
 # functions for migrating passwords and data
 ########################################################################
@@ -513,14 +542,8 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local Vaccs VInitGrps VEffGrps grouplessUsers x
+  local VInitGrps VEffGrps grouplessUsers x
   local grpExist=false dataError=false
-
-  Vaccs="$(
-    for x in $MigratoryAccounts ; do
-      if is_valid_user $x ; then echo "$x" ; fi
-    done
-  )"
 
   VInitGrps="$(
     for x in $MigratoryInitialGroups  ; do
@@ -541,13 +564,7 @@ function check_account_group_names() {
   )"
   grouplessUsers="$( echo $x )"
 
-  if [ -n "$Vaccs" ] ; then
-    echo These users had been already added:
-    echo
-    echo $Vaccs
-    echo
-    dataError=true
-  fi
+  if_some_migratory_accounts_valid && dataError=true
 
   if [ -n "$VEffGrps" ] ; then
     echo These effective groups had been already builded:
