@@ -294,6 +294,27 @@ function if_some_migratory_accounts_valid() {
   fi
 }
 
+function if_some_migratory_effGrp_valid() {
+  local VEffGrps
+  local tmpFile="$(mktemp)"
+
+  cut -d ':' -f 1 /etc/group > $tmpFile
+  echo "$MigratoryEffectiveGroups" >> $tmpFile
+
+  VEffGrps="$( sort $tmpFile | uniq -d )"
+
+  rm $tmpFile
+
+  if [ -n "$VEffGrps" ] ; then
+    echo These effective groups had been already builded:
+    echo
+    echo $VEffGrps
+    echo
+  else
+    return 1
+  fi
+}
+
 
 
 
@@ -542,17 +563,11 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local VInitGrps VEffGrps grouplessUsers x
+  local VInitGrps grouplessUsers x
   local grpExist=false dataError=false
 
   VInitGrps="$(
     for x in $MigratoryInitialGroups  ; do
-      if is_valid_group $x ; then echo "$x" ; fi
-    done
-  )"
-
-  VEffGrps="$(
-    for x in $MigratoryEffectiveGroups ; do
       if is_valid_group $x ; then echo "$x" ; fi
     done
   )"
@@ -566,13 +581,7 @@ function check_account_group_names() {
 
   if_some_migratory_accounts_valid && dataError=true
 
-  if [ -n "$VEffGrps" ] ; then
-    echo These effective groups had been already builded:
-    echo
-    echo $VEffGrps
-    echo
-    grpExist=true
-  fi
+  if_some_migratory_effGrp_valid && grpExist=true
 
   if [ -n "$VInitGrps" ] ; then
     echo These initial groups had been already builded:
