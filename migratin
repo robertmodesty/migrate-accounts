@@ -336,6 +336,26 @@ function if_some_migratory_initGrp_valid() {
   fi
 }
 
+function if_some_migratory_accounts_without_initGrp() {
+  local grouplessUsers
+
+  grouplessUsers="$(
+    echo "$MigratoryAccGrpPairs" \
+    | grep ":$" \
+    | sed "s/:$//"
+  )"
+
+  if [ -n "$grouplessUsers" ] ; then
+    echo These users do not have a named initial group:
+    echo
+    echo $grouplessUsers
+    echo
+    echo Please correct it!!!
+  else
+    return 1
+  fi
+}
+
 
 
 
@@ -584,15 +604,7 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local grouplessUsers x
   local grpExist=false dataError=false
-
-  x="$(
-    echo "$MigratoryAccGrpPairs" \
-    | grep ":$" \
-    | sed "s/:$//"
-  )"
-  grouplessUsers="$( echo $x )"
 
   if_some_migratory_accounts_valid && dataError=true
 
@@ -600,14 +612,7 @@ function check_account_group_names() {
 
   if_some_migratory_initGrp_valid && grpExist=true
 
-  if [ -n "$grouplessUsers" ] ; then
-    echo These users do not have a named initial group:
-    echo
-    echo $grouplessUsers
-    echo
-    echo Please correct it!!!
-    dataError=true
-  fi
+  if_some_migratory_accounts_without_initGrp && dataError=true
 
   if $grpExist && ! $dataError ; then
     read -p "Will this be fine? (Y/n) " x
