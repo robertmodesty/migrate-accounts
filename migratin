@@ -315,6 +315,27 @@ function if_some_migratory_effGrp_valid() {
   fi
 }
 
+function if_some_migratory_initGrp_valid() {
+  local VInitGrps
+  local tmpFile="$(mktemp)"
+
+  cut -d ':' -f 1 /etc/group > $tmpFile
+  echo "$MigratoryInitialGroups" >> $tmpFile
+
+  VInitGrps="$( sort $tmpFile | uniq -d )"
+
+  rm $tmpFile
+
+  if [ -n "$VInitGrps" ] ; then
+    echo These initial groups had been already builded:
+    echo
+    echo $VInitGrps
+    echo
+  else
+    return 1
+  fi
+}
+
 
 
 
@@ -563,14 +584,8 @@ function process_readonly_variables() {
 
 
 function check_account_group_names() {
-  local VInitGrps grouplessUsers x
+  local grouplessUsers x
   local grpExist=false dataError=false
-
-  VInitGrps="$(
-    for x in $MigratoryInitialGroups  ; do
-      if is_valid_group $x ; then echo "$x" ; fi
-    done
-  )"
 
   x="$(
     echo "$MigratoryAccGrpPairs" \
@@ -583,13 +598,7 @@ function check_account_group_names() {
 
   if_some_migratory_effGrp_valid && grpExist=true
 
-  if [ -n "$VInitGrps" ] ; then
-    echo These initial groups had been already builded:
-    echo
-    echo $VInitGrps
-    echo
-    grpExist=true
-  fi
+  if_some_migratory_initGrp_valid && grpExist=true
 
   if [ -n "$grouplessUsers" ] ; then
     echo These users do not have a named initial group:
