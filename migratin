@@ -192,6 +192,24 @@ function old_groupID_of() {
 # functions prepare readonly variable data
 ########################################################################
 
+function find_login_defs_sets() {
+
+  if [ -e "$Old_Filesystem/etc/login.defs" ] ; then
+    Old_UserIDmin=500
+    Old_UserIDmax=60000
+    Old_GrpIDmin=500
+    Old_MailDir="$Old_Filesystem/var/spool/mail"
+    FirstAccount=$Old_UserIDmin
+    LastAccount=$Old_UserIDmax
+  fi
+
+  if [ -e "/etc/login.defs" ] ; then
+    UserIDmin=500
+    GrpIDmin=500
+    MailDir="$Old_Filesystem/var/spool/mail"
+  fi
+}
+
 function sort_old_passwd_file_by_uid() {
 
   sort -t : -k 3 -n "$Old_passwd"
