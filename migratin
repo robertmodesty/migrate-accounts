@@ -193,12 +193,22 @@ function old_groupID_of() {
 ########################################################################
 
 function find_login_defs_sets() {
+  local loginDefs
 
   if [ -e "$Old_Filesystem/etc/login.defs" ] ; then
-    Old_UserIDmin=500
-    Old_UserIDmax=60000
-    Old_GrpIDmin=500
-    Old_MailDir="$Old_Filesystem/var/spool/mail"
+    loginDefs="$(
+     sed 's/^[ \t]*// ; s/^\([^ \t]*\)[ \t][ \t]*/\1 /' \
+      "$Old_Filesystem/etc/login.defs"
+     )"
+
+    Old_UserIDmin="$( echo "$loginDefs" | grep "^UID_MIN " )"
+    Old_UserIDmin="${Old_UserIDmin:8}"
+    Old_UserIDmax="$( echo "$loginDefs" | grep "^UID_MAX " )"
+    Old_UserIDmax="${Old_UserIDmax:8}"
+    Old_GrpIDmin="$( echo "$loginDefs" | grep "^GID_MIN " )"
+    Old_GrpIDmin="${Old_GrpIDmin:8}"
+    Old_MailDir="$( echo "$loginDefs" | grep "^MAIL_DIR " )"
+    Old_MailDir="${Old_MailDir:9}"
     FirstAccount=$Old_UserIDmin
     LastAccount=$Old_UserIDmax
   fi
