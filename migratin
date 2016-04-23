@@ -214,9 +214,17 @@ function find_login_defs_sets() {
   fi
 
   if [ -e "/etc/login.defs" ] ; then
-    UserIDmin=500
-    GrpIDmin=500
-    MailDir="$Old_Filesystem/var/spool/mail"
+    loginDefs="$(
+     sed 's/^[ \t]*// ; s/^\([^ \t]*\)[ \t][ \t]*/\1 /' \
+      "/etc/login.defs"
+     )"
+
+    UserIDmin="$( echo "$loginDefs" | grep "^UID_MIN " )"
+    UserIDmin="${UserIDmin:8}"
+    GrpIDmin="$( echo "$loginDefs" | grep "^GID_MIN " )"
+    GrpIDmin="${GrpIDmin:8}"
+    MailDir="$( echo "$loginDefs" | grep "^MAIL_DIR " )"
+    MailDir="${MailDir:9}"
   fi
 }
 
