@@ -195,6 +195,12 @@ function old_groupID_of() {
 function find_login_defs_sets() {
   local loginDefs
 
+  Old_UserIDmin=500
+  Old_UserIDmax=60000
+  Old_GrpIDmin=500
+  UserIDmin=500
+  GrpIDmin=500
+
   if [ -e "$Old_Filesystem/etc/login.defs" ] ; then
     loginDefs="$(
      sed 's/^[ \t]*// ; s/^\([^ \t]*\)[ \t][ \t]*/\1 /' \
