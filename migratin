@@ -14,6 +14,13 @@
 readonly Old_Filesystem="$1"
 readonly Regular_GroupID_Boundray="500"
 
+#   setup in function find_login_defs_sets():
+#       readonly Old_UserIDmin
+#       readonly Old_UserIDmax
+#       readonly Old_GrpIDmin
+#       readonly UserIDmin
+#       readonly GrpIDmin
+
 #   setup in function analysis_args():
 #       readonly FirstAccount
 #       readonly LastAccount
@@ -232,6 +239,8 @@ function find_login_defs_sets() {
     MailDir="$( echo "$loginDefs" | grep "^MAIL_DIR " )"
     MailDir="${MailDir:9}"
   fi
+
+  readonly Old_UserIDmin Old_UserIDmax Old_GrpIDmin UserIDmin GrpIDmin
 }
 
 function sort_old_passwd_file_by_uid() {
@@ -563,6 +572,8 @@ function analysis_args() {
   LoginShell="/bin/bash"
   If_Migrate_Eff_Grp="true"
   If_Copy_Mails="false"
+
+  find_login_defs_sets
 
   while [ -n "$1" ] ; do
     case "$1" in
