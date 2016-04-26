@@ -12,7 +12,6 @@
 # ******* Under here are list of readonly variables *******
 
 readonly Old_Filesystem="$1"
-readonly Regular_GroupID_Boundray="500"
 
 #   setup in function find_login_defs_sets():
 #       readonly Old_UserIDmin
@@ -313,7 +312,7 @@ function remove_old_system_groups() {
 
   while read group ; do
     groupID="$( old_groupID_of $group )"
-    test $groupID -ge $Regular_GroupID_Boundray && echo $group
+    test $groupID -ge $Old_GrpIDmin && echo $group
   done
 }
 
