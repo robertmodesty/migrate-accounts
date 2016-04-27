@@ -607,6 +607,11 @@ function analysis_args() {
       "-m"|"--copy-mails")
         If_Copy_Mails="true"
         ;;
+      "-1"|"--skip-first-account")
+        if [ $FirstAccount -eq $Old_UserIDmin ] ; then
+          FirstAccount=$(( $Old_UserIDmin + 1 ))
+        fi
+        ;;
     esac
     shift
   done
