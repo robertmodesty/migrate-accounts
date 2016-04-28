@@ -54,3 +54,8 @@ ARGUMENTS
 
         -m, --copy-mails
           Copy mails of all migratory accounts.
+
+        -1, --skip-first-account
+          Do not migrate the first regular account. In many cases, this
+          account is created during installing system and setted as
+          a sudo user.
